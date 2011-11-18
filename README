@@ -22,8 +22,8 @@ Creating a form field with the class creates a DOM object, which can, if you wis
 
 Where applicable, all form field objects have "name", "value" and "style" as arguments, in that order, to keep things simple. Style parameters return as DOM classes, but to avoid confusion with the word "class", I chose to use "style" instead.
 
-To "install", just make sure to include the source. You can install it locally (please do!), or use the one hosted at Turn Left:
-http://www.turnleftllc.com/api/tl_forms.js 
+To "install", just make sure to include the source. You can install it locally , or use the one hosted at Turn Left:
+http://www.turnleftllc.com/api/tl_forms.js  (note: this version is a compressed version, not a dev version)
 <script type="text/javascript" src="http://www.turnleftllc.com/api/tl_forms.js"></script>
 This, of course, needs to come after your jQuery declaration.
 
