@@ -1,0 +1,147 @@
+tl Forms is a javaScript class which makes inserting forms into your jQuery-driven application easy.
+    
+Copyright (C) 2011 Tom Thorogood (Turn Left, LLC)
+tom@tomthorogood.com | http://www.turnleftllc.com
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    
+The class is simply Form(), and it requires the jQuery library to function.
+
+Creating a form field with the class creates a DOM object, which can, if you wish, be converted to HTML.
+
+Where applicable, all form field objects have "name", "value" and "style" as arguments, in that order, to keep things simple. Style parameters return as DOM classes, but to avoid confusion with the word "class", I chose to use "style" instead.
+
+To "install", just make sure to include the source. You can install it locally (please do!), or use the one hosted at Turn Left:
+http://www.turnleftllc.com/api/tl_forms.js 
+<script type="text/javascript" src="http://www.turnleftllc.com/api/tl_forms.js"></script>
+This, of course, needs to come after your jQuery declaration.
+
+METHODS:
+
+create_dropdown_menu (str name, Array(values), str style)
+    returns a <select><option>...</option></select> DOM set.
+    example:
+        var form = new Form();
+        $('#form_div').append( form.create_dropdown_menu("favorite_fruit", {"apple", "banana", "orange", "tomato"}, "form_dropdown"));
+
+create_password_field (str name, str value, str style)
+    returns a <input type="password".../> DOM object
+    example:
+        var form = new Form();
+        $('#form_div').append( form.create_password_field("user_password", "", "input_field") );
+
+create_button (str name, str value, str style, str image_src)
+    return <input type="button" | type="image".../> DOM object
+    
+    example (no image):
+        var form = new Form();
+        $('#form_div').append( form.create_button("button_a", "Button A!", "form_button", false) );
+
+    example (image):
+        var form = new Form();
+        $('#form_div').append( form.create_button("button_a", "", "form_button", "images/button_a.png");
+
+create_fake_button (str name, str value, str style)
+    returns <span> DOM object. Useful for styling, if you want something to have the same look as a button, and be integrated into 
+    the form, but you don't want it to do anything (or you want to have other functionality you define in your script)
+    
+    example:
+        var form = new Form();
+        $('#form_div').append( form.create_fake_button("pretty_spacer", "Spacer A!", "form_button") );
+        //this would have the same appearance as the button craeted in create_button()
+
+create_hidden_field (str name, str value)
+       returns <input type="hidden".../> DOM object
+       for when you need to store items on the form, but don't want them displayed.
+       
+    example:
+        var form = new Form();
+        $('form_div').append( form.create_hidden_field("username", get_user_name()) );
+
+create_link_button (str value, str href, str style)
+        returns <a...></a> DOM object
+        Note that the argument layout is different here!
+        useful for creating anchors in your form with the same look as one of your buttons (kind of like create_fake_button).
+        Note that you still have to use another jQ function if you want this link to do something special.
+
+    example:
+        var form = new Form();
+        var link = form.create_link_button("Click to watch a YouTube video while you fill this out!", "http://www.youtube.com", "form_button");
+        $(link).click(function() {
+            window.open($(this).attr('href'), _blank false);
+            return false;
+        });
+        #('form_div').append(link);
+
+create_textarea (str name, str value, str style)
+    returns <textarea>...</textarea> DOM object
+    
+    example:
+        var form = new Form();
+        $('#form_div').append( form.create_textarea('comment_box', 'Enter additional comments here!', 'form_textarea_wide') );
+
+convert_link_anchor ( obj a_dom_object )
+    converts an <a></a> DOM object into raw html
+    returns string_html
+
+convert_input_field (obj input_dom_object)
+    converts an <input/> DOM object into raw html
+    returns string_html
+
+convert_span (obj span_dom_object)
+    converts a <span></span> DOM object into raw html
+    returns string_html
+
+convert_textarea (obj textarea_dom_object)
+    convers a <textarea></textarea> DOM object into raw html
+    returns string_html
+
+convert_dropdown_menu (obj select_dom_object)
+    converts a <select><option/></select> set into raw html
+    returns string_html
+
+as_html (array dom_objects, string form_url, string form_method)
+    converts an array of DOM objects into raw html
+    
+
+    Here's an example that would create an entire contact form in one declaration:
+
+    var form = new Form();
+    $('#form_div').html( form.as_html( {
+            form.create_text_field('email_address', 'Email Address?', 'form_textfield'),
+            form.create_text_field('name', 'Your Name', 'form_textfield'),
+            form.create_textarea('message', 'What would you like to tell me?', 'form_textrea_wide'),
+            form.create_submit_button('', "Submit", "form_submit_button")
+        }, "scripts/php/contact_form.php", "POST")
+    );
+    $('#form_div > input').one('focus', function() {
+        $(this).val('');
+    });
+    $('#form_div > input[name=email_address]).blur(function() {
+        if (! validate_email_address ( $(this).val() ))
+            alert('That is not a valid email address!');
+    });
+    $('#form_div > form').submit(function() {
+            var options = {
+                    success     :       function() { alert("We got your message. Thanks!") }
+            };
+            $(this).ajaxSubmit(options);
+            return false;
+    });
+
+    Assuming you already had "validate_email_address" as a function in your script, all of the above would create a form, automatically clear a field of its value the first time a user clicks on it (so they don't have to highlight and clear it themselves), validate an email address anytime the user changes that field, and finally will submit the form asynchronously (assuming you have the jquery ajax form plugin), alerting the user that it was a roaring success.
+
+Happy forming!
+
+
