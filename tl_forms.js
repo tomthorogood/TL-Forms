@@ -1,9 +1,10 @@
 function Form() {
-    this.create_text_field = function(name, value, style) {
+    this.create_text_field = function(name, value, style) 
+    {
         if (!name) {
-            name = "text_field"
+            name = "text_field";
         }
-        field = document.createElement('input');
+        var field = document.createElement('input');
         $(field).attr('type', 'text');
         $(field).attr('name', name);
         if (value) {
@@ -13,37 +14,45 @@ function Form() {
             $(field).addClass(style);
         }
         return field;
-    }
+    };
 
-    this.create_dropdown_menu = function (name, values, style) {
+    this.create_dropdown_menu = function (name, values, style) 
+    {
         var dropdown = document.createElement('select');
         $(dropdown).attr({"name" : name, "class" : style});
-        for (value in values) {
-            var option = document.createElement('option');
-            $(option).attr('value', values[value]);
-            $(option).text(values[value]);
-            $(dropdown).append(option);
+        for (var value in values) 
+        {
+            if (value)
+            {
+                var option = document.createElement('option');
+                $(option).attr('value', values[value]);
+                $(option).text(values[value]);
+                $(dropdown).append(option);
+            }
         }
         return dropdown;
-    }
+    };
 
-    this.create_password_field = function(name, value, style) {
-        if (!name) {
-            name="password"
+    this.create_password_field = function(name, value, style) 
+    {
+        if (!name) 
+        {
+            name="password";
         }
-        field=document.createElement('input');
+        var field=document.createElement('input');
         $(field).attr('type', 'password');
         $(field).attr('name', name);
         if (value) {
             $(field).attr('value', value);
         }
         if (style) {
-            $(field).addClass(style)
+            $(field).addClass(style);
         }
         return field;
-    }
+    };
 
-    this.create_button = function(name, value, style, image) {
+    this.create_button = function(name, value, style, image) 
+    {
         var button = document.createElement('input');
         if (!value) {
             value = "Button";
@@ -61,9 +70,11 @@ function Form() {
             $(button).attr('class', style);
         }
         return button;
-    }
+    };
 
-    this.create_submit_button = function(name, value, style, image) {
+    this.create_submit_button = function(name, value, style, image) 
+    {
+        var button;
         if (!value) {
             value = "Submit";
         }
@@ -82,12 +93,13 @@ function Form() {
             }
 
         if (name) {
-            $(button).attr('name', name)
+            $(button).attr('name', name);
         }
         $(button).text(value);
         return button;
-    }
-    this.create_fake_button = function (name, value, style ) {
+    };
+    this.create_fake_button = function (name, value, style ) 
+    {
         var fake = document.createElement('span');
         if (style) {
             $(fake).attr('class', style);
@@ -97,26 +109,32 @@ function Form() {
         }
         $(fake).text(value);
         return fake;
-    }
+    };
 
-    this.create_hidden_field = function (name, value) {
+    this.create_hidden_field = function (name, value) 
+    {
         var hidden = document.createElement('input');
         $(hidden).attr('type', 'hidden');
         $(hidden).attr('name', name);
         $(hidden).attr('value', value);
         return hidden;
-    }
+    };
 
-    this.create_file_upload = function(name, style) {
+    this.create_file_upload = function(name, style) 
+    {
         var file_upload = document.createElement('input');
         $(file_upload).attr('type', 'file');
         $(file_upload).attr('name',name);
-        if (style) $(file_upload).attr('class', 'style');
+        if (style)
+        {
+            $(file_upload).attr('class', 'style');
+        }
         return file_upload;
-    }
+    };
         
 
-    this.create_link_button = function (value, href, style) {
+    this.create_link_button = function (value, href, style) 
+    {
 	    var link = document.createElement('a');
 	    if (!href) {
 		    href = "#";
@@ -127,19 +145,24 @@ function Form() {
 	    }
 	    $(link).text(value);
 	    return link;
-    }
+    };
 
-    this.create_textarea = function (name, value, style) {
+    this.create_textarea = function (name, value, style) 
+    {
         var textarea = document.createElement('textarea');
         $(textarea).attr('name', name);
-        if (style) $(textarea).attr('class', style);
+        if (style)
+        {
+            $(textarea).attr('class', style);
+        }
         $(textarea).text(value);
-        return textarea
-    }
+        return textarea;
+    };
 
-    this.convert_link_anchor = function ( element) {
+    this.convert_link_anchor = function ( element) 
+    {
         var html = "<a href='" + $(element).attr('href'); 
-        if ( ($(element).attr('href').charAt($(element).attr('href').length-1)) != '/') {
+        if ( ($(element).attr('href').charAt($(element).attr('href').length-1)) !== '/') {
             html += "/";
         }
         html+= "' ";
@@ -148,15 +171,16 @@ function Form() {
         }
         html += ">"+$(element).text()+"</a>";
         return html;
-    }
+    };
 
-    this.convert_input_field = function(element) {
+    this.convert_input_field = function(element) 
+    {
         var html = "<input type='" + $(element).attr('type') + "' ";
         html += "name='" + $(element).attr('name') + "' ";
         if ($(element).attr('value')) {
             html += "value='" + $(element).attr('value') + "' ";
         }
-        if ($(element).attr('type') == 'image') {
+        if ($(element).attr('type') === 'image') {
             html += "src='" + $(element).attr('src') + "' ";
         }
         if ($(element).attr('class')) {
@@ -164,8 +188,9 @@ function Form() {
         }
         html += "/>";
         return html;
-    }            
-    this.convert_span = function(element) {
+    };
+    this.convert_span = function(element) 
+    {
         var html = "<span ";
         if ($(element).attr('name')) {
             html += "name='"+$(element).attr('name')+"' ";
@@ -175,43 +200,53 @@ function Form() {
         }
         html += ">"+$(element).text()+"</span>";
         return html;
-    }
+    };
 
-    this.convert_textarea = function(element) {
+    this.convert_textarea = function(element) 
+    {
         var html = "<textarea ";
         html += "name='"+$(element).attr('name')+"' ";
-        if ($(element).attr('class')) html += "class='"+$(element).attr('class')+"' ";
+        if ($(element).attr('class'))
+        {
+            html += "class='"+$(element).attr('class')+"' ";
+        }
         html += ">"+$(element).text()+"</textarea>";
         return html;
-    }
+    };
 
-    this.convert_dropdown_menu = function(element) {
+    this.convert_dropdown_menu = function(element) 
+    {
+        var option_array = [];
         var html = "<select name='"+$(element).attr('name')+"' ";
-        if ($(element).attr('class') != "") {
+        if ($(element).attr('class') !== "")
+        {
             html += " class='"+$(element).attr('class')+"' ";
         }
         html += ">"; 
-        var option = new Object;
-        option.array = Array();
         $(element).find('option').each(function() {
-            option.array.push($(this));
+            option_array.push($(this));
         });
-        for (item in option.array) {
-            html += "<option value='"+ $(option.array[item]).attr('value') + "'>"+$(option.array[item]).text()+"</option>";
+        for (var item in option_array) 
+        {
+            if (item)
+            {
+                html += "<option value='"+ $(option_array[item]).attr('value') + "'>"+$(option_array[item]).text()+"</option>";
+            }
         }
         html += "</select>";
         return html;
+    };
 
-    } 
     this.conversion_functions = {
         "INPUT"        :    this.convert_input_field,
         "SPAN"         :    this.convert_span,
         "A"            :    this.convert_link_anchor,
         "SELECT"       :    this.convert_dropdown_menu,
         "TEXTAREA"     :    this.convert_textarea
-    }
+    };
 
-    this.as_html = function(elements, method, url, is_already_html, is_upload_form) {
+    this.as_html = function(elements, method, url, is_already_html, is_upload_form) 
+    {
         var html = "<form method='" + method + "' action='"+url+"' ";
         if (is_upload_form) {
             html += "enctype='multipart/form-data' ";
@@ -219,7 +254,7 @@ function Form() {
         html += ">";
         if (! is_already_html) {
             for (var i = 0; i < elements.length; i++) {
-                html += this.conversion_functions[elements[i].nodeName](elements[i])
+                html += this.conversion_functions[elements[i].nodeName](elements[i]);
                     
             }
         }
@@ -229,6 +264,5 @@ function Form() {
 
         html += "</form>";
         return html;
-    }
+    };
 }
-    
