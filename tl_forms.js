@@ -55,7 +55,7 @@ function Form() {
             	var val = values[value];
             	if (!preserve_case || typeof preserve_case === "undefined")
             	{
-            	    val = val.toTitleCase();
+            	    val = val.toTitleCase().replace('_',' ');
             	}
                 var option = document.createElement('option');
                 $(option).attr('value', values[value].toLowerCase().replace(/ /g,'_'));
