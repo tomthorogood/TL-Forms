@@ -58,7 +58,7 @@ function Form() {
             	    val = val.toTitleCase();
             	}
                 var option = document.createElement('option');
-                $(option).attr('value', values[value].toLowerCase().replace(/ /g,'_');
+                $(option).attr('value', values[value].toLowerCase().replace(/ /g,'_'));
                 $(option).text(val);
                 $(dropdown).append(option);
             }
