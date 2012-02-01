@@ -128,7 +128,6 @@ function Form() {
         if (name) {
             $(button).attr('name', name);
         }
-        $(button).text(value);
         return button;
     };
     this.create_fake_button = function (name, value, style ) 
