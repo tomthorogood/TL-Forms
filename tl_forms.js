@@ -1,17 +1,17 @@
 //.........ADDING FUNCTIONALITY FOR CONVERTING OPTIONS TO TITLE CASE .........
 
 /* 
- * To Title Case 2.0.1 – http://individed.com/code/to-title-case/
- * Copyright © 2008–2012 David Gouch. Licensed under the MIT License. 
+ * To Title Case 2.0.1 â€“ http://individed.com/code/to-title-case/
+ * Copyright Â© 2008â€“2012 David Gouch. Licensed under the MIT License. 
  */
 
 String.prototype.toTitleCase = function () {
   var smallWords = /^(a|an|and|as|at|but|by|en|for|if|in|of|on|or|the|to|vs?\.?|via)$/i;
 
-  return this.replace(/([^\W_]+[^\s-]*) */g, function (match, p1, index, title) {
+  return this.replace(/([^\W_]+[^\s\-]*) */g, function (match, p1, index, title) {
     if (index > 0 && index + p1.length !== title.length &&
       p1.search(smallWords) > -1 && title.charAt(index - 2) !== ":" && 
-      title.charAt(index - 1).search(/[^\s-]/) < 0) {
+      title.charAt(index - 1).search(/[^\s\-]/) < 0) {
       return match.toLowerCase();
     }
 
@@ -24,277 +24,242 @@ String.prototype.toTitleCase = function () {
 };
 //.....END INSERTED SCRIPT......
 
-
-function Form() {
-    this.create_text_field = function(name, value, style) 
-    {
-        if (!name) {
-            name = "text_field";
-        }
-        var field = document.createElement('input');
-        $(field).attr('type', 'text');
-        $(field).attr('name', name);
-        if (value) {
-            $(field).attr('value', value);
-        }
-        if (style) {
-            $(field).addClass(style);
-        }
-        return field;
-    };
-
-    this.create_dropdown_menu = function (name, values, style, preserve_case) 
-    {
-    	
-        var dropdown = document.createElement('select');
-        $(dropdown).attr({"name" : name, "class" : style});
-        for (var value in values) 
-        {
-            if (value)
-            {
-            	var val = values[value];
-            	if (!preserve_case || typeof preserve_case === "undefined")
-            	{
-                    val = val.replace(/_/g,' ').toTitleCase()
-            	}
-                var option = document.createElement('option');
-                $(option).attr('value', values[value].toLowerCase().replace(/ /g,'_'));
-                $(option).text(val);
-                $(dropdown).append(option);
-            }
-        }
-        return dropdown;
-    };
-
-    this.create_password_field = function(name, value, style) 
-    {
-        if (!name) 
-        {
-            name="password";
-        }
-        var field=document.createElement('input');
-        $(field).attr('type', 'password');
-        $(field).attr('name', name);
-        if (value) {
-            $(field).attr('value', value);
-        }
-        if (style) {
-            $(field).addClass(style);
-        }
-        return field;
-    };
-
-    this.create_button = function(name, value, style, image) 
-    {
-        var button = document.createElement('input');
-        if (!value) {
-            value = "Button";
-        }
-        if (!image) {
-            $(button).attr('type', 'button');
-        }
-        else {
-            $(button).attr('type', 'image');
-        }
-        if (name) {
-            $(button).attr('name', name);
-        }
-        if (style) {
-            $(button).attr('class', style);
-        }
-        return button;
-    };
-
-    this.create_submit_button = function(name, value, style, image) 
-    {
-        var button;
-        if (!value) {
-            value = "Submit";
-        }
-        if (!image) {
-            button = document.createElement('input');
-            $(button).attr('type', 'submit');
-            $(button).attr('value', value);
-        }
-        else {
-            button = document.createElement('input');
-            $(button).attr('type', 'image');
-            $(button).attr('src', image);
-        }
-        if (style) {
-            $(button).attr('class', style);
-            }
-
-        if (name) {
-            $(button).attr('name', name);
-        }
-        return button;
-    };
-    this.create_fake_button = function (name, value, style ) 
-    {
-        var fake = document.createElement('span');
-        if (style) {
-            $(fake).attr('class', style);
-        }
-        if (name) {
-            $(fake).attr('name', name);
-        }
-        $(fake).text(value);
-        return fake;
-    };
-
-    this.create_hidden_field = function (name, value) 
-    {
-        var hidden = document.createElement('input');
-        $(hidden).attr('type', 'hidden');
-        $(hidden).attr('name', name);
-        $(hidden).attr('value', value);
-        return hidden;
-    };
-
-    this.create_file_upload = function(name, style) 
-    {
-        var file_upload = document.createElement('input');
-        $(file_upload).attr('type', 'file');
-        $(file_upload).attr('name',name);
-        if (style)
-        {
-            $(file_upload).attr('class', 'style');
-        }
-        return file_upload;
-    };
-        
-
-    this.create_link_button = function (value, href, style) 
-    {
-	    var link = document.createElement('a');
-	    if (!href) {
-		    href = "#";
-	    }
-	    $(link).attr('href', href);
-	    if (style) {
-		    $(link).attr('class', style);
-	    }
-	    $(link).text(value);
-	    return link;
-    };
-
-    this.create_textarea = function (name, value, style) 
-    {
-        var textarea = document.createElement('textarea');
-        $(textarea).attr('name', name);
-        if (style)
-        {
-            $(textarea).attr('class', style);
-        }
-        $(textarea).text(value);
-        return textarea;
-    };
-
-    this.convert_link_anchor = function ( element) 
-    {
-        var html = "<a href='" + $(element).attr('href'); 
-        if ( ($(element).attr('href').charAt($(element).attr('href').length-1)) !== '/') {
-            html += "/";
-        }
-        html+= "' ";
-        if ($(element).attr('class')) {
-            html += "class='"+$(element).attr('class')+"'";
-        }
-        html += ">"+$(element).text()+"</a>";
-        return html;
-    };
-
-    this.convert_input_field = function(element) 
-    {
-        var html = "<input type='" + $(element).attr('type') + "' ";
-        html += "name='" + $(element).attr('name') + "' ";
-        if ($(element).attr('value')) {
-            html += "value='" + $(element).attr('value') + "' ";
-        }
-        if ($(element).attr('type') === 'image') {
-            html += "src='" + $(element).attr('src') + "' ";
-        }
-        if ($(element).attr('class')) {
-            html += "class='" + $(element).attr('class') + "' ";
-        }
-        html += "/>";
-        return html;
-    };
-    this.convert_span = function(element) 
-    {
-        var html = "<span ";
-        if ($(element).attr('name')) {
-            html += "name='"+$(element).attr('name')+"' ";
-        }
-        if ($(element).attr('class')) {
-            html += "class='"+$(element).attr('class')+"' ";
-        }
-        html += ">"+$(element).text()+"</span>";
-        return html;
-    };
-
-    this.convert_textarea = function(element) 
-    {
-        var html = "<textarea ";
-        html += "name='"+$(element).attr('name')+"' ";
-        if ($(element).attr('class'))
-        {
-            html += "class='"+$(element).attr('class')+"' ";
-        }
-        html += ">"+$(element).text()+"</textarea>";
-        return html;
-    };
-
-    this.convert_dropdown_menu = function(element) 
-    {
-        var option_array = [];
-        var html = "<select name='"+$(element).attr('name')+"' ";
-        if ($(element).attr('class') !== "")
-        {
-            html += " class='"+$(element).attr('class')+"' ";
-        }
-        html += ">"; 
-        $(element).find('option').each(function() {
-            option_array.push($(this));
-        });
-        for (var item in option_array) 
-        {
-            if (item)
-            {
-                html += "<option value='"+ $(option_array[item]).attr('value') + "'>"+$(option_array[item]).text()+"</option>";
-            }
-        }
-        html += "</select>";
-        return html;
-    };
-
-    this.conversion_functions = {
-        "INPUT"        :    this.convert_input_field,
-        "SPAN"         :    this.convert_span,
-        "A"            :    this.convert_link_anchor,
-        "SELECT"       :    this.convert_dropdown_menu,
-        "TEXTAREA"     :    this.convert_textarea
-    };
-
-    this.as_html = function(elements, method, url, is_already_html, is_upload_form) 
-    {
-        var html = "<form method='" + method + "' action='"+url+"' ";
-        if (is_upload_form) {
-            html += "enctype='multipart/form-data' ";
-        }
-        html += ">";
-        if (! is_already_html) {
-            for (var i = 0; i < elements.length; i++) {
-                html += this.conversion_functions[elements[i].nodeName](elements[i]);
-                    
-            }
-        }
-        else {
-            html += elements;
-        }
-
-        html += "</form>";
-        return html;
-    };
+function Form() 
+{
 }
+
+Form.prototype.parse_value_string = function (string)
+{
+    if (/::/.test(string))
+    {
+        return string.split(/::/)[0].replace(/ /g, "_");
+    }
+    else
+    {
+        return string.replace(/ /g, "_");
+    }
+};
+
+Form.prototype.parse_display_string = function(string)
+{
+    if (/::/.test(string))
+    {
+        return string.split(/::/)[1].replace(/_/g," ");
+    }
+    else
+    {
+        return string.replace(/_/g, " ");
+    }
+};
+
+Form.prototype.create_text_field = function (name, value, style)
+{
+    if (typeof name === "undefined")
+    {
+        name = "text_field";
+    }
+    var field = document.createElement('input');
+    field.type = "text";
+    field.name = name;
+    field.value = value || undefined;
+    if (typeof style === "string")
+    {
+        $(field).addClass(style);
+    }
+    return field;
+};
+
+Form.prototype.create_dropdown_menu = function (name, values, style, preserve_case)
+{
+    var dropdown = document.createElement('select');
+    if (typeof name === "undefined")
+    {
+        name = "dropdown";
+    }
+    dropdown.name = name;
+    for (var value in values)
+    {
+        if (typeof value !== "undefined")
+        {
+            var val = values[value];
+            if (!preserve_case || typeof preserve_case === "undefined")
+            {
+                val = val.replace(/_/g,' ').toTitleCase();
+            }
+            var option = document.createElement('option');
+            option.value = this.parse_value_string (val); 
+            option.innerHTML = this.parse_display_string (val);
+            dropdown.appendChild(option);
+        }
+    }
+    if (typeof style ==="string")
+    {
+        $(dropdown).addClass(style);
+    }
+};
+
+Form.prototype.create_password_field = function (name, value, style)
+{
+    if (typeof name === "undefined")
+    {
+        name = "password";
+    }
+    var field = document.createElement('input');
+    field.type = "password";
+    field.name = name;
+    if (typeof value === "string")
+    {
+        field.value = value;
+    }
+    if (typeof style === "string")
+    {
+        $(field).addClass(style);
+    }
+    return field;
+};
+
+Form.prototype.create_submit_button = function (name, value, style, image)
+{
+    var button;
+    if (typeof value === "undefined")
+    {
+        value = "Submit";
+    }
+    if (typeof image === "undefined")
+    {
+        button = document.createElement('input');
+        button.type = "submit";
+        button.value = value;
+    }
+    else
+    {
+        button = document.createElement('input');
+        button.type = "image";
+        button.src = image;
+    }
+    if (typeof style === "string")
+    {
+        $(button).addClass(style);
+    }
+    return button;
+};
+    
+Form.prototype.create_fake_button = function (name, value, style)
+{
+    var fake = document.createElement('span');
+    if (typeof style ==="string")
+    {
+        $(fake).addClass(style);
+    }
+    if (typeof name === "string")
+    {
+        fake.name = name;
+    }
+    fake.innerHTML = value;
+    return fake;
+};
+
+Form.prototype.create_hidden_field = function (name, value)
+{
+    var hidden = document.createElement('input');
+    hidden.type = "hidden";
+    hidden.name = name;
+    hidden.value = value;
+    return hidden;
+};
+
+Form.prototype.create_file_upload = function (name, style)
+{
+    var file_upload = document.createElement('input');
+    file_upload.type = "file";
+    file_upload.name = name;
+    if (typeof style === "string")
+    {
+        $(file_upload).addClass(style);
+    }
+    return file_upload;
+};
+
+Form.prototype.create_link_button = function (value, href, style)
+{
+    var link = document.createElement('a');
+    if (typeof href === "undefined")
+    {
+        href = "#";
+    }
+    link.href = href;
+    if (typeof style === "string")
+    {
+        $(link).addClass(style);
+    }
+    link.innerHTML = value;
+
+    return link;
+};
+
+
+Form.create_textarea = function (name, value, style)
+{
+    var textarea = document.createElement('textarea');
+    if (typeof name === "undefined")
+    {
+        name = "textarea";
+    }
+    if (typeof style === "string")
+    {
+        $(textarea).addClass(style);
+    }
+    if (typeof value === "string")
+    {
+        textarea.innerHTML = value;
+    }
+    return textarea;
+};
+
+
+
+Form.create_multi_button = function (name, values, style, type)
+{
+    var div = document.createElement('div');
+    var value;
+    for (value in values)
+    {
+      if (typeof value === "string")
+      {
+        var d = document.createElement('div');
+        var s = document.createElement('span');
+        if (typeof style === "string")
+        {
+            $(d).addClass(style);
+        }
+        var radio = document.createElement('input');
+        if (typeof name === "undefined")
+        {
+            name = type;
+        }
+        radio.name = name;
+        radio.type = type;
+        radio.value = this.parse_value_string(values[value]);
+        if (this.parse_selected_string(values[value]))
+        {
+            radio.checked = "checked";
+        }
+        s.innerHTML = this.parse_display_string(values[value]);
+        d.appendChild(radio);
+        d.appendChild(s);
+        div.appendChild(d);
+      }
+    }
+    return div;
+};
+
+Form.create_radio_button = function (name, values, style)
+{
+    return this.create_multi_button(name, values, style, "radio");
+};
+
+Form.create_checkbox = function (name, values, style)
+{
+    return this.create_multi_button(name, values, style, "checkbox");
+};
+
