@@ -24,33 +24,33 @@ String.prototype.toTitleCase = function () {
 };
 //.....END INSERTED SCRIPT......
 
-function Form() 
+function Parse (string)
 {
+    if (/::/.test(string))
+    {
+        return string.split(/::/g);
+    }
+    return [string];
 }
 
-Form.prototype.parse_value_string = function (string)
-{
-    if (/::/.test(string))
-    {
-        return string.split(/::/)[0].replace(/ /g, "_");
-    }
-    else
-    {
-        return string.replace(/ /g, "_");
-    }
-};
 
-Form.prototype.parse_display_string = function(string)
+function Form() 
 {
-    if (/::/.test(string))
-    {
-        return string.split(/::/)[1].replace(/_/g," ");
-    }
-    else
-    {
-        return string.replace(/_/g, " ");
-    }
-};
+    this.parse = {
+        value : function(string)
+        {
+            return Parse(string)[0];
+        },
+        display : function(string)
+        {
+            return Parse(string)[1];
+        },
+        selected : function(string)
+        {
+            return Parse(string)[2];
+        }
+    };
+}
 
 Form.prototype.create_text_field = function (name, value, style)
 {
@@ -87,8 +87,8 @@ Form.prototype.create_dropdown_menu = function (name, values, style, preserve_ca
                 val = val.replace(/_/g,' ').toTitleCase();
             }
             var option = document.createElement('option');
-            option.value = this.parse_value_string (val); 
-            option.innerHTML = this.parse_display_string (val);
+            option.value = this.parse.value(val); 
+            option.innerHTML = this.parse.display(val);
             dropdown.appendChild(option);
         }
     }
@@ -239,12 +239,12 @@ Form.create_multi_button = function (name, values, style, type)
         }
         radio.name = name;
         radio.type = type;
-        radio.value = this.parse_value_string(values[value]);
-        if (this.parse_selected_string(values[value]))
+        radio.value = this.parse.value(values[value]);
+        if (this.parse.selected(values[value]) === "Selected")
         {
             radio.checked = "checked";
         }
-        s.innerHTML = this.parse_display_string(values[value]);
+        s.innerHTML = this.parse.display(values[value]);
         d.appendChild(radio);
         d.appendChild(s);
         div.appendChild(d);
@@ -262,4 +262,3 @@ Form.create_checkbox = function (name, values, style)
 {
     return this.create_multi_button(name, values, style, "checkbox");
 };
-
