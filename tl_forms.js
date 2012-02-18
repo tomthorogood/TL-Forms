@@ -30,7 +30,7 @@ function Parse (string)
     {
         return string.split(/::/g);
     }
-    return [string];
+    return [string,string];
 }
 
 
