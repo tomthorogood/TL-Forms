@@ -96,6 +96,7 @@ Form.prototype.create_dropdown_menu = function (name, values, style, preserve_ca
     {
         $(dropdown).addClass(style);
     }
+    return dropdown;
 };
 
 Form.prototype.create_password_field = function (name, value, style)
@@ -218,7 +219,7 @@ Form.create_textarea = function (name, value, style)
 
 
 
-Form.create_multi_button = function (name, values, style, type)
+Form.prototype.create_multi_button = function (name, values, style, type)
 {
     var div = document.createElement('div');
     var value;
@@ -253,12 +254,12 @@ Form.create_multi_button = function (name, values, style, type)
     return div;
 };
 
-Form.create_radio_button = function (name, values, style)
+Form.prototype.create_radio_button = function (name, values, style)
 {
     return this.create_multi_button(name, values, style, "radio");
 };
 
-Form.create_checkbox = function (name, values, style)
+Form.prototype.create_checkbox = function (name, values, style)
 {
     return this.create_multi_button(name, values, style, "checkbox");
 };
