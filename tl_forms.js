@@ -1,3 +1,21 @@
+/*  TL Forms is a library which allows the easy creation, embedding, and validation of forms
+    using JavaScript and jQuery.
+    Copyright (C) 2012  Tom A. Thorogood, Turn Left, LLC [www.turnleftllc.com]
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 //.........ADDING FUNCTIONALITY FOR CONVERTING OPTIONS TO TITLE CASE .........
 
 /* 
@@ -24,7 +42,18 @@ String.prototype.toTitleCase = function () {
 };
 //.....END INSERTED SCRIPT......
 
+
+/*..............................
+
+The Parse() and Form() classes grant the ability to create form elements.
+
+*/
+
 function Parse (string)
+//Enables embedding of separate values or select options into dropdown,radio, and checkboxes.
+// create_radio_button("sandwich", ["1::Peanut Butter & Jelly::Selected", "2::Grilled Cheese"]);
+// would result in <input type="radio", value="1" checked/><span>Peanut Butter & Jelly</span>
+// and so on...
 {
     if (/::/.test(string))
     {
@@ -34,25 +63,28 @@ function Parse (string)
 }
 
 
-function Form() 
+function Form()
+//Constructor for the form class. Since this class contains mostly class methods,
+//not much is constructed.
 {
     this.parse = {
         value : function(string)
-        {
+        {//form.parse.value('01::foo::bar') would return '01'
             return Parse(string)[0];
         },
         display : function(string)
-        {
+        {//form.parse.display('01::foo::bar') would return 'foo'
             return Parse(string)[1];
         },
         selected : function(string)
-        {
+        {//form.parse.selected('01::foo::bar') would return 'bar'
             return Parse(string)[2];
         }
     };
 }
 
 Form.prototype.create_text_field = function (name, value, style)
+// Creates an input element with a type of text. 
 {
     if (typeof name === "undefined")
     {
@@ -70,6 +102,9 @@ Form.prototype.create_text_field = function (name, value, style)
 };
 
 Form.prototype.create_dropdown_menu = function (name, values, style, preserve_case)
+// Creates a dropdown menu, where the values are passed as an array:
+// .create_dropdown_menu("myDropdown", ['Option 1', 'Option 2', 'Option 3'])
+// Options will automatically be set to title case unless preserve_case is set to true.
 {
     var dropdown = document.createElement('select');
     if (typeof name === "undefined")
@@ -100,6 +135,7 @@ Form.prototype.create_dropdown_menu = function (name, values, style, preserve_ca
 };
 
 Form.prototype.create_password_field = function (name, value, style)
+// Creates an input field with the type of password
 {
     if (typeof name === "undefined")
     {
@@ -120,6 +156,8 @@ Form.prototype.create_password_field = function (name, value, style)
 };
 
 Form.prototype.create_submit_button = function (name, value, style, image)
+// Creates an input field of type 'submit' if no image is given
+// Otherwise, creates an input field of type 'image'.
 {
     var button;
     if (typeof value === "undefined")
@@ -147,6 +185,8 @@ Form.prototype.create_submit_button = function (name, value, style, image)
 };
     
 Form.prototype.create_fake_button = function (name, value, style)
+// Creates a span element made to look like a button. I truly cannot remember
+// why I did this?
 {
     var fake = document.createElement('span');
     if (typeof style ==="string")
@@ -162,6 +202,8 @@ Form.prototype.create_fake_button = function (name, value, style)
 };
 
 Form.prototype.create_hidden_field = function (name, value)
+// Adds a hidden field into the form for passing information to the 
+// form handler without displaying it.
 {
     var hidden = document.createElement('input');
     hidden.type = "hidden";
@@ -171,6 +213,9 @@ Form.prototype.create_hidden_field = function (name, value)
 };
 
 Form.prototype.create_file_upload = function (name, style)
+// Creates a file upload field.
+// Note that it does not handle multiple file selection at this time.
+// >>> TODO!
 {
     var file_upload = document.createElement('input');
     file_upload.type = "file";
@@ -183,6 +228,9 @@ Form.prototype.create_file_upload = function (name, style)
 };
 
 Form.prototype.create_link_button = function (value, href, style)
+// Creates an anchor tag that behaves like a button. Much
+// like the fake button, I don't really know what I did this.
+// It was long ago.
 {
     var link = document.createElement('a');
     if (typeof href === "undefined")
@@ -201,6 +249,7 @@ Form.prototype.create_link_button = function (value, href, style)
 
 
 Form.create_textarea = function (name, value, style)
+// Creates a textarea. Surprised?
 {
     var textarea = document.createElement('textarea');
     if (typeof name === "undefined")
@@ -221,6 +270,7 @@ Form.create_textarea = function (name, value, style)
 
 
 Form.prototype.create_multi_button = function (name, values, style, type)
+// Shouldn't be invoked directly. See create_radio_button or create_checkbox
 {
     var div = document.createElement('div');
     var value;
@@ -257,15 +307,36 @@ Form.prototype.create_multi_button = function (name, values, style, type)
 };
 
 Form.prototype.create_radio_button = function (name, values, style)
+//Creates a radio field in the form of <div><input type="radio" ... ><span>...</span></div>
+//The div will be named the same name as the radio inputs.
 {
     return this.create_multi_button(name, values, style, "radio");
 };
 
 Form.prototype.create_checkbox = function (name, values, style)
+//Creates a checkbox field in the form of <div><input type="checkbox" ... > <span>...</span></div>
 {
     return this.create_multi_button(name, values, style, "checkbox");
 };
-function validator (against, delay, valid_css, invalid_css)
+
+
+/*.............................................
+The validator() class allows live field validation.
+*/
+
+function validator (against, /*optional => */delay, valid_css, invalid_css)
+/* against needs to be a function that takes a value, and returns a value in one of the following formats:
+ * bool (true/false), array [bool, message]
+ * delay defaults to 650ms, but can be set by passing something in here.
+ * valid_css defaults to a teal background with white text, and represents the appearance of a form field when 
+ * it has been validated. It can be set here.
+ * invalid_css defaults to a red background with white text, and represents the appearance of a form field
+ * when it has been tested and failed the validation.
+ * Example instantiation for a validator which tests to see if a number is between 1 and 10:
+ * var num_1_to_10 = new validator ( function(value) {
+                                              return /[0-9]{1,2}/g.test(value);
+                                   });
+*/
 {
     this.delay = delay || 650;
     this.css = {
@@ -275,7 +346,8 @@ function validator (against, delay, valid_css, invalid_css)
     this.test = against;
     this.set_text = {};
     this.validate = function (element)
-    {
+    { // Validates fields after an x ms delay, where x is this.delay; 
+      // after testing, animates the field to the valid or invalid css.
         var _self = this;
         var timer;
         $(element).keyup(function() {
