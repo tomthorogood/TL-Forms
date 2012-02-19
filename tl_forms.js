@@ -389,7 +389,18 @@ function validator (against, /*optional => */delay, valid_css, invalid_css)
 }
 
 function form_widget (method, handler, /*optional*/no_overlay, /*required if setting no_overlay to true*/element)
+//The form widget class by default creates forms in a lightbox style overlay, which requires the overlay class
+//(turnleftllc.com/api/tl_overlay.js)
+//
+// When instantiating, method is either 'POST' or 'GET'.
+// Handler is the form handler URL (php, python, cgi, and so forth).
+// no_overlay can be set to true if you wish to render the form in the same layer as the rest of your content
+// element is only required if no_overlay is set to true, and should be the element in which you wish the form to appear.
+//
+// example:
+//     var widget = new form_widget('POST', 'scripts/contact.php', true, '#contact_form');
 {
+    //renders in an overlay unless this is explicitly set to true.
     if (!no_overlay === true)
     {
         this.overlay = new Overlay();
@@ -402,12 +413,13 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
     this.form = new Form();
     this.method = method;
     this.handler = handler;
-    this.fields = [];
-    this.groups = [];
-    this.validation_timeout = 500;
-    this.field_instructions = {};
-    this.valid = {
+    this.fields = []; // stores the form fields added after instantiation
+    this.groups = []; // stores the groups of form fields, if this method is used
+    this.validation_timeout = 500; // default validation timeout (passed into instances of the validator class)
+    this.field_instructions = {}; //stores instructions for the fields
+    this.valid = { // validators go here!
         email   :   new validator(function(value) {
+            //validates the structure of an email address
                         var pattern = /[A-Za-z0-9%._\-]*@[A-Zz-z0-9\-]*\.[a-zA-Z0-9]{2,4}/gi;
                         var valid;
                         var message;
@@ -423,9 +435,11 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
                         }
                     }),
         day_in_month    :   new validator(function(value) {
+            //validates whether an input is a day of the month
                                 return (typeof value === "number" && value < 32);
                             }),
         currency        :   new validator(function(value) {
+            //validates whether a string can be considered currency
                                 var pattern = /^\$?([1-9]{1}[0-9]{0,2}(\,[0-9]{3})*(\.[0-9]{0,2})?|[1-9]{1}[0-9]{0,}(\.[0-9]{0,2})?|0(\.[0-9]{0,2})?|(\.[0-9]{1,2})?)$/;                            
                                 if (pattern.test(value))
                                 {
@@ -439,6 +453,8 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
                                 }
                             }),
         match           :   new validator(function(value) {
+            //validates to see if a field matches the contents of one named 'password1'
+            //used for seeing if passwords match
                                 var compare = document.getElementsByName("password1");
                                 if (compare.length > 0)
                                 {
@@ -450,6 +466,7 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
                                 }
                             }),
         percentage      :   new validator(function(value) {
+            //validates a field to see whether it can be parsed as a percentage
                                 var percent = /^[0-9]{0,2}\.{0,1}[0-9]{0,2}%{0,1}/; 
                                 var decimal = /^(\.(\d*))/;
                                 if (decimal.test(value))
@@ -468,6 +485,7 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
                                 }
                             }),
         password        :   new validator(function(value) {
+            //validates a field to see if it's a valid password
                                 var bad_chars = /\\\/\(\)\{\};/g;
                                 var min_length = 6;
                                 if (!bad_chars.test(value))
@@ -492,11 +510,17 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
 }
 
 form_widget.prototype.validate = function (field,type)
+// on-the-fly validation of a field
 {
     this.valid[type].validate(field);
 };
 
-form_widget.prototype.add_field = function (type, name, value, css_class, valid_as)
+form_widget.prototype.add_field = function (type, name, value, /*optional => */css_class, valid_as)
+// adds a field into the form widget.
+// example:
+//     widget.add_field("text", "email_address", "Your eMail Address", "form_email_field", "email");
+// note that "dropdown" and "radio" require an array of options as their value paramter 
+// (see Form create_radio_button method)
 {
     var field;
     switch(type)
@@ -524,6 +548,10 @@ form_widget.prototype.add_field = function (type, name, value, css_class, valid_
 form_widget.prototype.grouping = function( group_id, fields) 
 // Using grouping will allow you to process methods for individual groups of fields, instead of talking
 // to the entire form all at once. In order to group two fields together, they must already be in this.fields[]
+// example:
+// widget.add_field("text", "email_address", "Your eMail Address", false, "email");
+// widget.add_field("text", "first_name", "Your First Name");
+// widget.grouping("part_one", ["email_address", "first_name"]);
 {
     var field;
     var name;
@@ -559,11 +587,24 @@ form_widget.prototype.grouping = function( group_id, fields)
 };
 
 form_widget.prototype.progress_button = function (element)
+// if using the grouping method, you must have a progress button. This is where you set it.
+// The element parameter can be an id, an id-string (beginning with '#'), or an element itself.
+// <div id='progress_button'></div>
+// valid:
+//     widget.progress_button('progress_button');
+//     widget.progress_button('#progress_button');
+//     widget.progress_button(document.getElementById('progress_button'));
+//     widget.progress_button(jQuery('#progress_button'));
+// This way, you don't have to keep track of how you're passing this around, even though you should
+// always know what you're passing.
 {
     this.progress.button = this.format_element(element);
 };
 
 form_widget.prototype.enable_progress_button = function ()
+// private method which binds click functionality to the progress bar
+// warns the developer in the console if this is called before a progress bar is set.
+// It'll help with debugging, just in case you forget. 
 {
     var _self_ = this;
     $(_self_.progress.button).click(function() {
@@ -578,7 +619,20 @@ form_widget.prototype.enable_progress_button = function ()
     });
 };
 
-form_widget.prototype.create_form = function (form_name, css_class)
+form_widget.prototype.create_form = function (/*optional =>*/form_name, css_class)
+// After setting all of the form information, adding fields, groups, etc., you call this method 
+// to build the form and append it to your document.
+//
+// var widget = new form_widget('POST', 'handler.php');
+// widget.add_field('text', 'first_name', 'Your First Name');
+// widget.add_field('text', 'last_name', 'Your Last Name');
+// widget.add_field('submit', 'submit', 'Register');
+// widget.create_form();
+// widget.set_ajax(true, function() {widget.overlay.fade();});
+// 
+// The above example creates a form which fades in an overlay, shadowing the main page content,
+// takes the user's first and last name, and sends it to the handler.php script via an ajax post, fading
+// the form out upon completion.
 {
     var field;
     var form = document.createElement('form');
@@ -642,6 +696,8 @@ form_widget.prototype.create_form = function (form_name, css_class)
 };
 
 form_widget.prototype.format_element = function (el)
+// takes an argument, determines whether it's a DOM object or a string, and
+// returns it as a DOM object, otherwise, returns the object unchanged..
 {
     if (typeof el === "object")
     {
@@ -655,6 +711,8 @@ form_widget.prototype.format_element = function (el)
 }
 
 form_widget.prototype.set_ajax = function(bool, success_callback)
+// sets whether a form should be submitted asynchronously.
+// REQUIRES the ajaxSubmit plugin found here: http://jquery.malsup.com/form/
 {
     if (bool === true)
     {
@@ -690,6 +748,9 @@ form_widget.prototype.track_progress = function ( parent_bar, animated_bar )
 };
 
 form_widget.prototype._progress = function ()
+// Private method that extends the progress bar, changes the form content to that of the next content group,
+// and animates it all. 
+// Does not need to be called implicitly. Called by default when the progress button is clicked.
 {
     var PERCENT = 100;
     this.progress.current ++;
@@ -704,17 +765,25 @@ form_widget.prototype._progress = function ()
 };
 
 form_widget.prototype.initialize_progress = function ()
+// A private method that starts the progress bar. Called during the create_form method.
 {
     var start = this.progress.start;
     $(this.progress.bar).css({"width" : start+"%"});
 };
 
 form_widget.prototype.add_instructions = function (field, text)
+// Allows the addition of instructions to a form field. Instructions are shown when a field has focus.
+// example:
+//     widget.add_field('password', user_pw, /*it's annoying to put values in password fields*/, "");
+//     widget.add_instructions('password', 'Please enter the password you created when registering.');
 {
     this.field_instructions[field] = text;
 };
 
 form_widget.prototype.set_instructions = function (element)
+// Sets the DOM object in which the instructions should appear. 
+// continuing the above example:
+//     widget.set_instructions('#instructions');
 {
     var _self = this;
     // Attempts to detrmine the state of the instructions div based on what was based into the method.
