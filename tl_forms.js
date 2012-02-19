@@ -142,6 +142,7 @@ Form.prototype.create_submit_button = function (name, value, style, image)
     {
         $(button).addClass(style);
     }
+    button.name = name || "submit";
     return button;
 };
     
@@ -223,6 +224,7 @@ Form.prototype.create_multi_button = function (name, values, style, type)
 {
     var div = document.createElement('div');
     var value;
+    div.name = name;
     for (value in values)
     {
       if (typeof value === "string")
