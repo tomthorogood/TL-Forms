@@ -83,6 +83,20 @@ function Form()
     };
 }
 
+Form.prototype._IE_Compliant = function (element)
+{
+    //Sometimes IE is a douchebag with input fields.
+    //This workaround will wrap tags in a div.
+    if (navigator.appName === "Microsoft Internet Explorer")
+    {
+        var div = document.createElement('div');
+        div.name = element.name;
+        div.appendChild(element);
+        return div;
+    }
+    return element;
+}
+
 Form.prototype.create_text_field = function (name, value, style)
 // Creates an input element with a type of text. 
 {
@@ -152,7 +166,7 @@ Form.prototype.create_password_field = function (name, value, style)
     {
         $(field).addClass(style);
     }
-    return field;
+    return this.IE_Compliant(field);
 };
 
 Form.prototype.create_submit_button = function (name, value, style, image)
@@ -181,7 +195,7 @@ Form.prototype.create_submit_button = function (name, value, style, image)
         $(button).addClass(style);
     }
     button.name = name || "submit";
-    return button;
+    return this.IE_Compliant(button);
 };
     
 Form.prototype.create_fake_button = function (name, value, style)
@@ -198,7 +212,7 @@ Form.prototype.create_fake_button = function (name, value, style)
         fake.name = name;
     }
     fake.innerHTML = value;
-    return fake;
+    return this.IE_Compliant(fake);
 };
 
 Form.prototype.create_hidden_field = function (name, value)
@@ -224,7 +238,7 @@ Form.prototype.create_file_upload = function (name, style)
     {
         $(file_upload).addClass(style);
     }
-    return file_upload;
+    return this.IE_Compliant(file_upload);
 };
 
 Form.prototype.create_link_button = function (value, href, style)
@@ -244,7 +258,7 @@ Form.prototype.create_link_button = function (value, href, style)
     }
     link.innerHTML = value;
 
-    return link;
+    return this.IE_Compliant(link);
 };
 
 
@@ -264,7 +278,7 @@ Form.create_textarea = function (name, value, style)
     {
         textarea.innerHTML = value;
     }
-    return textarea;
+    return this.IE_Compliant(textarea);
 };
 
 
