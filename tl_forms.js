@@ -83,7 +83,7 @@ function Form()
     };
 }
 
-Form.prototype._IE_Compliant = function (element)
+Form.prototype.IE_Compliant = function (element)
 {
     //Sometimes IE is a douchebag with input fields.
     //This workaround will wrap tags in a div.
