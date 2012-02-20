@@ -112,7 +112,7 @@ Form.prototype.create_text_field = function (name, value, style)
     {
         $(field).addClass(style);
     }
-    return field;
+    return this.IE_Compliant(field);
 };
 
 Form.prototype.create_dropdown_menu = function (name, values, style, preserve_case)
