@@ -633,7 +633,7 @@ form_widget.prototype.enable_progress_button = function ()
     });
 };
 
-form_widget.prototype.create_form = function (/*optional =>*/form_name, css_class)
+form_widget.prototype.create_form = function (/*optional =>*/form_name, css_class, swap_char)
 // After setting all of the form information, adding fields, groups, etc., you call this method 
 // to build the form and append it to your document.
 //
@@ -657,6 +657,10 @@ form_widget.prototype.create_form = function (/*optional =>*/form_name, css_clas
     if (typeof css_class !== "undefined")
     {
         form.className = css_class;
+    }
+    if (typeof swap_char === "undefined")
+    {
+        swap_char = 'd';
     }
     form.setAttribute('method', this.method);
     form.setAttribute('action', this.handler);
@@ -704,7 +708,7 @@ form_widget.prototype.create_form = function (/*optional =>*/form_name, css_clas
     $('.swap.focus').hide();
     $('.swap.default').one('focus',function() {
         var name = $(this).attr('name');
-        $('input[name='+name.replace('x','d')+']').show().focus();
+        $('input[name='+name.replace('x',swap_char)+']').show().focus();
         $(this).remove();
     });
 };
