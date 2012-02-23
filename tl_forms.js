@@ -371,7 +371,7 @@ function validator (against, /*optional => */delay, valid_css, invalid_css)
                     clearTimeout(timer);
                 }
             });
-            if (element.value.length > 0)
+            if (typeof element.value !== 'undefined' && element.value.length > 0)
             {
                 timer = setTimeout(function() {
                     var valid = _self.test(element.value);
@@ -431,6 +431,9 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
     this.groups = []; // stores the groups of form fields, if this method is used
     this.validation_timeout = 500; // default validation timeout (passed into instances of the validator class)
     this.field_instructions = {}; //stores instructions for the fields
+    this.swap_char_map = {
+        '_x_'     :   'd'
+    }
     this.valid = { // validators go here!
         email   :   new validator(function(value) {
             //validates the structure of an email address
@@ -553,7 +556,15 @@ form_widget.prototype.add_field = function (type, name, value, /*optional => */c
     
     if (typeof valid_as !== "undefined")
     {
-        this.validate(field, valid_as);
+        if (navigator.appName === "Microsoft Internet Explorer")
+        {
+            var f = field.childNodes[0];
+            this.validate(f, valid_as);
+        }
+        else
+        {
+            this.validate(field, valid_as);
+        }
     }
     this.fields.push(field);
 };
@@ -632,7 +643,23 @@ form_widget.prototype.enable_progress_button = function ()
     });
 };
 
-form_widget.prototype.create_form = function (/*optional =>*/form_name, css_class, swap_char)
+form_widget.prototype.name_swap = function (str)
+// Iterates through the swap_char_map property, searching for instances of the keys, replacing them with the keyed values.
+// Returns after the first match, otherwise, returns the string in its original form.
+{
+    var ch;
+    for (ch in this.swap_char_map)
+    {
+        var pattern = new RegExp(ch);
+        if (pattern.test(str))
+        {
+            return str.replace(pattern, this.swap_char_map[ch]);
+        }
+    }
+    return str;
+}
+
+form_widget.prototype.create_form = function (/*optional =>*/form_name, css_class)
 // After setting all of the form information, adding fields, groups, etc., you call this method 
 // to build the form and append it to your document.
 //
@@ -647,6 +674,7 @@ form_widget.prototype.create_form = function (/*optional =>*/form_name, css_clas
 // takes the user's first and last name, and sends it to the handler.php script via an ajax post, fading
 // the form out upon completion.
 {
+    var _self_ = this;
     var field;
     var form = document.createElement('form');
     if (typeof form_name !== "undefined")
@@ -656,10 +684,6 @@ form_widget.prototype.create_form = function (/*optional =>*/form_name, css_clas
     if (typeof css_class !== "undefined")
     {
         form.className = css_class;
-    }
-    if (typeof swap_char === "undefined")
-    {
-        swap_char = 'd';
     }
     form.setAttribute('method', this.method);
     form.setAttribute('action', this.handler);
@@ -706,11 +730,11 @@ form_widget.prototype.create_form = function (/*optional =>*/form_name, css_clas
     this.element.appendChild(form);
     $('.swap.focus').hide();
     $('.swap.default').one('focus',function() {
-        var name = $(this).attr('name');
-        var swap = name.replace(/x/, swap_char);
-        console.debug(swap);
-        $('input[name='+swap+']').show().focus();
+        var name = this.name;
+        var swap = _self_.name_swap(name);
         $(this).remove();
+        $('input[name='+swap+']').show().focus();
+        return false;
     });
 };
 
@@ -815,8 +839,10 @@ form_widget.prototype.add_text = function (field, text)
 {
     var index = this.field_index(field);
     var div = document.createElement('div');
-    div.innerHTML = this.fields[index];
+    div.innerHTML = text;
+    div.appendChild(this.fields[index]);
     div.name = this.fields[index].name;
+    $(div).addClass('form flavor');
     this.fields[index] = div;
 }
 
