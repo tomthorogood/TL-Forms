@@ -450,7 +450,8 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
                     }),
         day_in_month    :   new validator(function(value) {
             //validates whether an input is a day of the month
-                                return (typeof value === "number" && value < 32);
+                                var val = parseInt(value);
+                                return (typeof val === "number"  && val < 32);
                             }),
         currency        :   new validator(function(value) {
             //validates whether a string can be considered currency
@@ -518,8 +519,6 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
                                     return false;
                                 }
                             })
-
-
     };
 }
 
@@ -797,6 +796,27 @@ form_widget.prototype.add_instructions = function (field, text)
 {
     this.field_instructions[field] = text;
 };
+
+form_widget.prototype.field_index = function (field)
+{
+    for (var i = 0; i < this.fields.length; i++)
+    {
+        if (this.fields[i].name === field)
+        {
+            return i;
+        }
+    }
+    return undefined;
+}
+
+form_widget.prototype.add_text = function (field, text)
+{
+    var index = this.field_index(field);
+    var div = document.createElement('div');
+    div.innerHTML = this.fields[index];
+    div.name = this.fields[index].name;
+    this.fields[index] = div;
+}
 
 form_widget.prototype.set_instructions = function (element)
 // Sets the DOM object in which the instructions should appear. 
