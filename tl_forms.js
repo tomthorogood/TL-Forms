@@ -707,7 +707,9 @@ form_widget.prototype.create_form = function (/*optional =>*/form_name, css_clas
     $('.swap.focus').hide();
     $('.swap.default').one('focus',function() {
         var name = $(this).attr('name');
-        $('input[name='+name.replace('x',swap_char)+']').show().focus();
+        var swap = name.replace(/x/, swap_char);
+        console.debug(swap);
+        $('input[name='+swap+']').show().focus();
         $(this).remove();
     });
 };
