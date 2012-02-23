@@ -23,6 +23,8 @@
  * Copyright Â© 2008â€“2012 David Gouch. Licensed under the MIT License. 
  */
 
+var IE_MODE = navigator.appName === "Microsoft Internet Explorer";
+
 String.prototype.toTitleCase = function () {
   var smallWords = /^(a|an|and|as|at|but|by|en|for|if|in|of|on|or|the|to|vs?\.?|via)$/i;
 
@@ -87,7 +89,7 @@ Form.prototype.IE_Compliant = function (element)
 {
     //Sometimes IE is a douchebag with input fields.
     //This workaround will wrap tags in a div.
-    if (navigator.appName === "Microsoft Internet Explorer")
+    if (IE_MODE)
     {
         var div = document.createElement('div');
         div.name = element.name;
@@ -379,9 +381,12 @@ function validator (against, /*optional => */delay, valid_css, invalid_css)
                     {
                         case "object"   :   _self.set_text[element.name] = valid[1].toString();
                                             valid = valid[0];
+                                            //Do not put a break here! 
                         case "boolean"  :   var css = valid ? _self.css.valid : _self.css.invalid;
+                                            element.valid = valid;
                                             break;
                         default         :   valid = true; //Don't punish the user if the programmer doesn't know what they're doing!
+                                            element.valid = valid;
                     }
                     switch(typeof element)
                     {
@@ -529,9 +534,39 @@ form_widget.prototype.validate = function (field,type)
 // on-the-fly validation of a field
 {
     this.valid[type].validate(field);
+    if (this.groups.length > 0)
+    {
+        for (var div in this.groups)
+        {
+            if (IE_MODE)
+            {//since IE mode wraps fields in an extra div...
+                var field = this.groups[div].childNodes[0].childNodes[0];
+            }
+            else
+            {
+                var field = this.groups[div].childNodes[0];
+            }
+            if (typeof field.required !== "undefined" && typeof field.valid !== "undefined")
+            {
+                if (!field.valid)
+                {
+                    this.show_progress = false;
+                    break;
+                }
+                else
+                {
+                    this.show_progress = true;
+                }
+            }
+        }
+    }
+    if (this.show_progress)
+    {
+        $(this.progress.bar).show();
+    }
 };
 
-form_widget.prototype.add_field = function (type, name, value, /*optional => */css_class, valid_as)
+form_widget.prototype.add_field = function (type, name, value, /*optional => */css_class, valid_as, required)
 // adds a field into the form widget.
 // example:
 //     widget.add_field("text", "email_address", "Your eMail Address", "form_email_field", "email");
@@ -540,6 +575,7 @@ form_widget.prototype.add_field = function (type, name, value, /*optional => */c
 {
     var field;
     switch(type)
+    
     {
         case 'text'     :       field = this.form.create_text_field(name, value, css_class);
                                 break;
@@ -553,16 +589,20 @@ form_widget.prototype.add_field = function (type, name, value, /*optional => */c
                                 break;
         case 'radio'    :       field = this.form.create_radio_button(name, value, css_class);
     }
-    
+
     if (typeof valid_as !== "undefined")
     {
-        if (navigator.appName === "Microsoft Internet Explorer")
+        if (IE_MODE)
         {
             var f = field.childNodes[0];
+            f.required = (typeof required !== "undefined" && required === true);
+            f.valid = false;
             this.validate(f, valid_as);
         }
         else
         {
+            field.required = (typeof required !== "undefined" && required === true);
+            field.valid = false;
             this.validate(field, valid_as);
         }
     }
@@ -577,6 +617,7 @@ form_widget.prototype.grouping = function( group_id, fields)
 // widget.add_field("text", "first_name", "Your First Name");
 // widget.grouping("part_one", ["email_address", "first_name"]);
 {
+    this.show_progress = false;
     var field;
     var name;
     var div = document.createElement('div');
@@ -641,6 +682,7 @@ form_widget.prototype.enable_progress_button = function ()
             }
         });
     });
+    $(this.progress.button).hide();
 };
 
 form_widget.prototype.name_swap = function (str)
