@@ -109,7 +109,7 @@ Form.prototype.create_text_field = function (name, value, style)
     var field = document.createElement('input');
     field.type = "text";
     field.name = name;
-    field.value = value || undefined;
+    field.value = value || "";
     if (typeof style === "string")
     {
         $(field).addClass(style);
@@ -200,23 +200,6 @@ Form.prototype.create_submit_button = function (name, value, style, image)
     return this.IE_Compliant(button);
 };
     
-Form.prototype.create_fake_button = function (name, value, style)
-// Creates a span element made to look like a button. I truly cannot remember
-// why I did this?
-{
-    var fake = document.createElement('span');
-    if (typeof style ==="string")
-    {
-        $(fake).addClass(style);
-    }
-    if (typeof name === "string")
-    {
-        fake.name = name;
-    }
-    fake.innerHTML = value;
-    return this.IE_Compliant(fake);
-};
-
 Form.prototype.create_hidden_field = function (name, value)
 // Adds a hidden field into the form for passing information to the 
 // form handler without displaying it.
@@ -243,27 +226,6 @@ Form.prototype.create_file_upload = function (name, style)
     return this.IE_Compliant(file_upload);
 };
 
-Form.prototype.create_link_button = function (value, href, style)
-// Creates an anchor tag that behaves like a button. Much
-// like the fake button, I don't really know what I did this.
-// It was long ago.
-{
-    var link = document.createElement('a');
-    if (typeof href === "undefined")
-    {
-        href = "#";
-    }
-    link.href = href;
-    if (typeof style === "string")
-    {
-        $(link).addClass(style);
-    }
-    link.innerHTML = value;
-
-    return this.IE_Compliant(link);
-};
-
-
 Form.create_textarea = function (name, value, style)
 // Creates a textarea. Surprised?
 {
@@ -282,8 +244,6 @@ Form.create_textarea = function (name, value, style)
     }
     return this.IE_Compliant(textarea);
 };
-
-
 
 Form.prototype.create_multi_button = function (name, values, style, type)
 // Shouldn't be invoked directly. See create_radio_button or create_checkbox
@@ -366,44 +326,59 @@ function validator (against, /*optional => */delay, valid_css, invalid_css)
       // after testing, animates the field to the valid or invalid css.
         var _self = this;
         var timer;
-        $(element).keyup(function() {
-            $(element).keydown(function(event) {
-                if (event.keyCode !== 9)
+        var valid;
+        if (element.type.toLowerCase() === "radio")
+        {
+            $(element).change(function() {
+                element = typeof element === "string" ? $(element) : element;
+                valid = _self.test(element.value);
+                valid = typeof valid === "object" ? valid[0] : valid; 
+                element.valid = valid;
+                var c = element.valid === true ? _self.css.valid : _self.css.invalid;
+                $(element).css(c);
+            });
+        }
+        else
+        {
+            $(element).keyup(function() {
+                $(element).keydown(function(event) {
+                    if (event.keyCode !== 9)
+                    {
+                        clearTimeout(timer);
+                    }
+                });
+                if (typeof element.value !== 'undefined' && element.value.length > 0)
                 {
-                    clearTimeout(timer);
+                    timer = setTimeout(function() {
+                        valid = _self.test(element.value);
+                        switch(typeof valid)
+                        {
+                            case "object"   :   _self.set_text[element.name] = valid[1].toString();
+                                                valid = valid[0];
+                                                //Do not put a break here! This cascades on purpose! 
+                            case "boolean"  :   var css = valid ? _self.css.valid : _self.css.invalid;
+                                                element.valid = valid;
+                                                break;
+                            default         :   valid = true; //Don't punish the user if the programmer doesn't know what they're doing!
+                                                element.valid = valid;
+                        }
+                        switch(typeof element)
+                        {
+                            case "string"   :   element = element[0] === "#" ? element : "#"+element;
+                            case "object"   :   $(element).animate(css, 250, function() {
+                                                    if (typeof _self.set_text[element.name] === "string")
+                                                    {
+                                                        $(element).val(_self.set_text[element.name]);
+                                                        delete _self.set_text[element.name];
+                                                    }
+                                                });
+                                                return;
+                            case "undefined" :  return valid;
+                        }
+                    }, _self.delay);
                 }
             });
-            if (typeof element.value !== 'undefined' && element.value.length > 0)
-            {
-                timer = setTimeout(function() {
-                    var valid = _self.test(element.value);
-                    switch(typeof valid)
-                    {
-                        case "object"   :   _self.set_text[element.name] = valid[1].toString();
-                                            valid = valid[0];
-                                            //Do not put a break here! 
-                        case "boolean"  :   var css = valid ? _self.css.valid : _self.css.invalid;
-                                            element.valid = valid;
-                                            break;
-                        default         :   valid = true; //Don't punish the user if the programmer doesn't know what they're doing!
-                                            element.valid = valid;
-                    }
-                    switch(typeof element)
-                    {
-                        case "string"   :   element = element[0] === "#" ? element : "#"+element;
-                        case "object"   :   $(element).animate(css, 250, function() {
-                                                if (typeof _self.set_text[element.name] === "string")
-                                                {
-                                                    $(element).val(_self.set_text[element.name]);
-                                                    delete _self.set_text[element.name];
-                                                }
-                                            });
-                                            return;
-                        case "undefined" :  return valid;
-                    }
-                }, _self.delay);
-            }
-        });
+        }
     };
 }
 
