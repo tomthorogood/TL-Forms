@@ -295,11 +295,66 @@ Form.prototype.create_checkbox = function (name, values, style)
     return this.create_multi_button(name, values, style, "checkbox");
 };
 
+var tl_form = new Form();
+function Element(type, /*optional >>*/name, value, css_class, test, callback, required)
+{
+    this.type = type;
+    this.callback = callback || function() {return true;};
+    this.input = [];
+    this.name = name;
+    this.validator = typeof test !== "undefined" ? new validator( test, function() {return this.callback()} ) : undefined;
+    this.required = typeof required !== "undefined" ? required : false;
+    this.valid = !(typeof this.validator !== "undefined" && this.required === true);
+    switch(this.type)
+    {
+        case 'text'     :       this.model = tl_form.create_text_field(name, value, css_class);
+                                this.tag = "input";
+                                break;
+        case 'hidden'   :       this.model = tl_form.create_hidden_field(name, value);
+                                this.tag = "input";
+                                break;
+        case 'password' :       this.model = tl_form.create_password_field(name, value, css_class);
+                                this.tag = "input";
+                                break;
+        case "dropdown" :       this.model = tl_form.create_dropdown_menu(name,value,css_class);
+                                this.tag = "select";
+                                break;
+        case 'submit'   :       this.model = tl_form.create_submit_button(name, value, css_class);
+                                this.tag = "input";
+                                break;
+        case 'radio'    :       this.model = tl_form.create_radio_button(name, value, css_class);
+                                this.tag = "input";
+                                break;
+        case 'textarea' :       this.model = tl_form.create_textarea(name, value, css_class);
+                                this.tag = "textarea";
+    }
+
+    var eles = (this.model.getElementsByTagName(this.tag));
+    for (var e in eles)
+    {
+        this.input.push(eles[e]);
+    }
+}
+
+function Field_Group (name, array)
+{
+    this.inputs = [];
+    this.field_names = [];
+    this.div = document.createElement('div');
+    $(this.div).addClass('tl form group');
+    for (var i = 0; i < array.length; i++)
+    {
+        this.div.appendChild(array[i].model);
+        this.inputs.push(array[i].input);
+        this.field_names.push(array[i].name);
+    }
+}
+
+
 
 /*.............................................
 The validator() class allows live field validation.
 */
-
 function validator (against, /*optional => */delay, valid_css, invalid_css)
 /* against needs to be a function that takes a value, and returns a value in one of the following formats:
  * bool (true/false), array [bool, message]
@@ -404,7 +459,6 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
     {
         this.element = element;
     }
-    this.form = new Form();
     this.method = method;
     this.handler = handler;
     this.fields = []; // stores the form fields added after instantiation
@@ -505,40 +559,55 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
     };
 }
 
+form_widget.prototype.show_progress = function ()
+{
+    var group = this.groups[this.progress.current-1];
+    var names = group.field_names; //Each of the field names in the group.
+    var all = {};
+    var show_progress_button = true;
+    var i;
+    for (i = 0; i < names.length; i++)
+    {// for each field name in the list of names
+        var n = names[i];   
+        var elements = [];  //create an array to hold the location of this field in this.fields[]
+        for (var j = 0; j < this.fields.length; j++)
+        {
+            if (this.fields[j].name === n)
+            {
+                elements.push(j); //store the location of the field in this.fields[]
+            }
+        }
+        for (var k = 0; k < elements.length; k++)
+        {//for each field index in elements
+            if (this.fields[k].valid === true) //if the field has been marked as valid
+            {
+                all[n] = true;
+                break;
+            }
+            else
+            {
+                all[n] = false;
+            }
+        }
+    }
+    for (var m = 0; m < names.length; m++)
+    {//for everything we've already done
+        if (! all[m])
+        {//if it's not true, we cannot progress
+            show_progress_button = false;
+            break;
+        }
+    }
+    if (show_progress_button === true)
+    {
+        $(this.progress.button).show();
+    }
+}
+
 form_widget.prototype.validate = function (field,type)
 // on-the-fly validation of a field
 {
     this.valid[type].validate(field);
-    if (this.groups.length > 0)
-    {
-        for (var div in this.groups)
-        {
-            if (IE_MODE)
-            {//since IE mode wraps fields in an extra div...
-                var field = this.groups[div].childNodes[0].childNodes[0];
-            }
-            else
-            {
-                var field = this.groups[div].childNodes[0];
-            }
-            if (typeof field.required !== "undefined" && typeof field.valid !== "undefined")
-            {
-                if (!field.valid)
-                {
-                    this.show_progress = false;
-                    break;
-                }
-                else
-                {
-                    this.show_progress = true;
-                }
-            }
-        }
-    }
-    if (this.show_progress)
-    {
-        $(this.progress.bar).show();
-    }
 };
 
 form_widget.prototype.add_field = function (type, name, value, /*optional => */css_class, valid_as, required)
@@ -547,50 +616,15 @@ form_widget.prototype.add_field = function (type, name, value, /*optional => */c
 //     widget.add_field("text", "email_address", "Your eMail Address", "form_email_field", "email");
 // note that "dropdown" and "radio" require an array of options as their value paramter 
 // (see Form create_radio_button method)
-{
-    var field;
-    switch(type)
-    
-    {
-        case 'text'     :       field = this.form.create_text_field(name, value, css_class);
-                                break;
-        case 'hidden'   :       field = this.form.create_hidden_field(name, value);
-                                break;
-        case 'password' :       field = this.form.create_password_field(name, value, css_class);
-                                break;
-        case "dropdown" :       field = this.form.create_dropdown_menu(name,value,css_class);
-                                break;
-        case 'submit'   :       field = this.form.create_submit_button(name, value, css_class);
-                                break;
-        case 'radio'    :       field = this.form.create_radio_button(name, value, css_class);
-    }
-
+{ 
+    var test;
     if (typeof valid_as !== "undefined")
     {
-        if (type === 'radio')
-        {
-            var _self_ = this;
-            $(field).find('input').each(function() {
-                this.required = (typeof required !== "undefined" &&  required === true);
-                this.valid = false;
-                _self_.validate(this, valid_as);
-            });
-        }
-                
-        else if (IE_MODE)
-        {
-            var f = field.childNodes[0];
-            f.required = (typeof required !== "undefined" && required === true);
-            f.valid = false;
-            this.validate(f, valid_as);
-        }
-        else
-        {
-            field.required = (typeof required !== "undefined" && required === true);
-            field.valid = false;
-            this.validate(field, valid_as);
-        }
+        test = this.valid[type].validate;
     }
+
+    var field = new Element(type,name,value,css_class,test,this.show_progress,required);
+
     this.fields.push(field);
 };
 
@@ -602,38 +636,22 @@ form_widget.prototype.grouping = function( group_id, fields)
 // widget.add_field("text", "first_name", "Your First Name");
 // widget.grouping("part_one", ["email_address", "first_name"]);
 {
-    this.show_progress = false;
-    var field;
     var name;
-    var div = document.createElement('div');
-    $(div).addClass("form group");
-    if (typeof group_id === "string")
-    {
-        div.id = group_id;
-    }
-    else
-    {
-        console.warn("You have given an invalid argument to 'group_id' in form_widget.grouping");
-        console.debug(group_id);
-    }
+    var index;
+    var group = [];             // Holds the actual field objects gathered from this.fields,
+                                // identified by the name in fields[]
     for (name in fields)
     {
       if (typeof fields[name] === "string")
       {
-        for (field in this.fields)
-        {
-            if (typeof this.fields[field] !== "undefined")
-            {
-                if (this.fields[field].name === fields[name])
-                {
-                    div.appendChild(this.fields[field]);
-                    $(div).hide();
-                }
-            }
-        }
+          for (field in this.fields)
+          {
+              index = this.field_index(fields[name]);
+              group.push(this.fields[index]);
+          }
       }
     }
-    this.groups.push(div);
+    this.groups.push(new Field_Group(group_id, group);
 };
 
 form_widget.prototype.progress_button = function (element)
@@ -854,7 +872,7 @@ form_widget.prototype.field_index = function (field)
 {
     for (var i = 0; i < this.fields.length; i++)
     {
-        if (this.fields[i].name === field)
+        if (this.fields[i].model.name === field)
         {
             return i;
         }
