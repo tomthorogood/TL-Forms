@@ -14,6 +14,7 @@ classes = [
         ]
 
 try:
+    os.system('rm dev/tl_forms.js')
     os.system('touch dev/tl_forms.js')
 except:
     os.system('mkdir dev')
