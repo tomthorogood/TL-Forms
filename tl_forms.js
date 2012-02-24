@@ -567,7 +567,7 @@ form_widget.prototype.add_field = function (type, name, value, /*optional => */c
 
     if (typeof valid_as !== "undefined")
     {
-        if (IE_MODE)
+        if (IE_MODE || type === 'radio')
         {
             var f = field.childNodes[0];
             f.required = (typeof required !== "undefined" && required === true);
