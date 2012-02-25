@@ -27,7 +27,7 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
     this.validation_timeout = 500; // default validation timeout (passed into instances of the validator class)
     this.field_instructions = {}; //stores instructions for the fields
     this.swap_char_map = {
-        '_x_'     :   'd'
+        '_x_'     :   'd'           //Will attempt to swap fields with 'key' with fields with 'value' on field focus (useful for password fields)
     };
     this.valid = { // validators go here!
         email   :   new Validator(function(value) {
@@ -48,13 +48,14 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
                     }),
         day_in_month    :   new Validator(function(value) {
             //validates whether an input is a day of the month
-                                var val = parseInt(value,10);
+                                var val = parseInt(value,10); //Field values will be strings by default
                                 return (typeof val === "number"  && val < 32);
                             }),
         currency        :   new Validator(function(value) {
             //validates whether a string can be considered currency
-                                var pattern = /^\$?([1-9]{1}[0-9]{0,2}(\,[0-9]{3})*(\.[0-9]{0,2})?|[1-9]{1}[0-9]{0,}(\.[0-9]{0,2})?|0(\.[0-9]{0,2})?|(\.[0-9]{1,2})?)$/;                            
-                                if (pattern.test(value))
+                                var pattern = /^\$?([1-9]{1}[0-9]{0,2}(\,[0-9]{3})*(\.[0-9]{0,2})?|[1-9]{1}[0-9]{0,}(\.[0-9]{0,2})?|0(\.[0-9]{0,2})?|(\.[0-9]{1,2})?)$/;
+                                var test_result = pattern.test(value);
+                                if (test_result)
                                 {
                                     var replace = /[$,]/g;
                                     var output = value.replace(replace, '');
@@ -62,28 +63,21 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
                                 }
                                 else
                                 {
-                                    return pattern.test(value);
-                                }
-                            }),
-        match           :   new Validator(function(value) {
-            //validates to see if a field matches the contents of one named 'password1'
-            //used for seeing if passwords match
-                                var compare = document.getElementsByName("password1");
-                                if (compare.length > 0)
-                                {
-                                    return value === $(compare[0]).val();
-                                }
-                                else
-                                {
-                                    return true;
+                                    return pattern.test(test_result);
                                 }
                             }),
         percentage      :   new Validator(function(value) {
             //validates a field to see whether it can be parsed as a percentage
                                 var percent = /^[0-9]{0,2}\.{0,1}[0-9]{0,2}%{0,1}/; 
                                 var decimal = /^(\.(\d*))/;
+                                var output;
                                 if (decimal.test(value))
                                 {
+                                    as_float = parseFloat(value,10);
+                                    if (as_float > 1)
+                                    {
+                                        return [true, as_float/100];
+                                    }
                                     return true;
                                 }
                                 else if (percent.test(value))
