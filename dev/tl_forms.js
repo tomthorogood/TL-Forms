@@ -1,6 +1,3 @@
-/**@fileOverview some base configurations for the library.
- * @author Tom A. Thorogood
- */
 if (typeof navigator !== "undefined")
 {
     var IE_MODE = navigator.appName === "Microsoft Internet Explorer";
@@ -34,7 +31,10 @@ String.prototype.toTitleCase = function () {
 };
 //.....END INSERTED SCRIPT......
 
-
+/**@function Parse
+ * @param {String} any string
+ * @return {object} a list of parsed strings separated by the '::' delimiter.
+ */
 function Parse (string)
 //Enables embedding of separate values or select options into dropdown,radio, and checkboxes.
 // create_radio_button("sandwich", ["1::Peanut Butter & Jelly::Selected", "2::Grilled Cheese"]);
@@ -277,7 +277,19 @@ Form.prototype.create_checkbox = function (name, values, style)
 {
     return this.create_multi_button(name, values, style, "checkbox");
 };
+/**@public tl_form - a Form object.
+ */
 var tl_form = new Form();
+
+/**@Class Element
+ * Creates an input field element.
+ * @param {String} type The field type (text, hidden,password,dropdown,submit,radio,textarea)
+ * @param {String} name The name of the field (if not defined, will default to the field type)
+ * @param {String} css_class The css-style class of the field
+ * @param {Function} object A function which takes a DOM Object as a parameter and tests its value, returning true or false.
+ * @param {Function} callback A callback function, taking no parameters and returning no parameters, which will be executed after the test.
+ * @param {Boolean} reqired Whether or not the field must be filled out (and valid) before the form is submitted.
+ */
 function Element(type, /*optional >>*/name, value, css_class, test, callback, required)
 {
     this.type = type;
@@ -311,15 +323,21 @@ function Element(type, /*optional >>*/name, value, css_class, test, callback, re
                                 this.tag = "textarea";
     }
 
-    var eles = (this.model.getElementsByTagName(this.tag));
-    for (var e in eles)
+    var elements = (this.model.getElementsByTagName(this.tag));
+    for (var e in elements)
     {
         if (typeof e !== 'undefined')
         {
-            this.input.push(eles[e]);
+            this.input.push(elements[e]);
         }
     }
 }
+
+/**@Class Field_Group 
+ * A group of fields that should be displayed and validated together.
+ * @param {String} name The name of the group
+ * @param {Object} array An array of objects of the Element class.
+ */
 
 function Field_Group (name, array)
 {
