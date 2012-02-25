@@ -31,6 +31,12 @@ Certain implementations also require other libraries:
 ================================
 SETUP:
 
+If you're on linux, run build.sh in the tools/ directory. You must have Java 6 in order to do so.
+This will combine all the necessary files and minimize them, placing the dev version in dev/ and the minified version in min/.
+
+If you're on windows, run concat.py, and then minify.py. Concat combines all the files in src, and minify minifies that output.
+Most likely, this won't even be necessary, as this utility should be run before each push into the repository, but just in case...
+
 The base use is fairly straightforward. The following must be included in your HTML code:
 <script type="text/javascript" src="[[path to jquery]]"></script>
 <script type="text/javascript" src="[[path to jquery ui]]"></script>
@@ -38,7 +44,7 @@ The base use is fairly straightforward. The following must be included in your H
 <script type="text/javascript" src="tl_overlay.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
 -->
-<script type="text/javascript" src="tl_forms.js"></script>
+<script type="text/javascript" path/to/min/="tl_forms.js"></script>
 
 ===============================
 
