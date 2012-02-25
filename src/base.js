@@ -1,4 +1,7 @@
-var IE_MODE = navigator.appName === "Microsoft Internet Explorer";
+if (typeof navigator !== "undefined")
+{
+    var IE_MODE = navigator.appName === "Microsoft Internet Explorer";
+}
 //.........ADDING FUNCTIONALITY FOR CONVERTING OPTIONS TO TITLE CASE .........
 
 /* 
@@ -6,7 +9,9 @@ var IE_MODE = navigator.appName === "Microsoft Internet Explorer";
  * Copyright Â© 2008â€“2012 David Gouch. Licensed under the MIT License. 
  */
 
-
+/** Returns a string in title case.
+ * @returns string, with the first letter of each word capitalized.
+ */
 String.prototype.toTitleCase = function () {
   var smallWords = /^(a|an|and|as|at|but|by|en|for|if|in|of|on|or|the|to|vs?\.?|via)$/i;
 
@@ -26,7 +31,10 @@ String.prototype.toTitleCase = function () {
 };
 //.....END INSERTED SCRIPT......
 
-
+/**@function Parse
+ * @param {String} any string
+ * @return {object} a list of parsed strings separated by the '::' delimiter.
+ */
 function Parse (string)
 //Enables embedding of separate values or select options into dropdown,radio, and checkboxes.
 // create_radio_button("sandwich", ["1::Peanut Butter & Jelly::Selected", "2::Grilled Cheese"]);

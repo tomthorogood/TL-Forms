@@ -14,7 +14,7 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
     if (!no_overlay === true)
     {
         this.overlay = new Overlay();
-        this.element = this.overlay.div
+        this.element = this.overlay.div;
     }
     else
     {
@@ -28,9 +28,9 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
     this.field_instructions = {}; //stores instructions for the fields
     this.swap_char_map = {
         '_x_'     :   'd'
-    }
+    };
     this.valid = { // validators go here!
-        email   :   new validator(function(value) {
+        email   :   new Validator(function(value) {
             //validates the structure of an email address
                         var pattern = /[A-Za-z0-9%._\-]*@[A-Zz-z0-9\-]*\.[a-zA-Z0-9]{2,4}/gi;
                         var valid;
@@ -46,12 +46,12 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
                             default         :   return false;
                         }
                     }),
-        day_in_month    :   new validator(function(value) {
+        day_in_month    :   new Validator(function(value) {
             //validates whether an input is a day of the month
-                                var val = parseInt(value);
+                                var val = parseInt(value,10);
                                 return (typeof val === "number"  && val < 32);
                             }),
-        currency        :   new validator(function(value) {
+        currency        :   new Validator(function(value) {
             //validates whether a string can be considered currency
                                 var pattern = /^\$?([1-9]{1}[0-9]{0,2}(\,[0-9]{3})*(\.[0-9]{0,2})?|[1-9]{1}[0-9]{0,}(\.[0-9]{0,2})?|0(\.[0-9]{0,2})?|(\.[0-9]{1,2})?)$/;                            
                                 if (pattern.test(value))
@@ -65,7 +65,7 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
                                     return pattern.test(value);
                                 }
                             }),
-        match           :   new validator(function(value) {
+        match           :   new Validator(function(value) {
             //validates to see if a field matches the contents of one named 'password1'
             //used for seeing if passwords match
                                 var compare = document.getElementsByName("password1");
@@ -78,7 +78,7 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
                                     return true;
                                 }
                             }),
-        percentage      :   new validator(function(value) {
+        percentage      :   new Validator(function(value) {
             //validates a field to see whether it can be parsed as a percentage
                                 var percent = /^[0-9]{0,2}\.{0,1}[0-9]{0,2}%{0,1}/; 
                                 var decimal = /^(\.(\d*))/;
@@ -97,7 +97,7 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
                                     return false;
                                 }
                             }),
-        password        :   new validator(function(value) {
+        password        :   new Validator(function(value) {
             //validates a field to see if it's a valid password
                                 var bad_chars = /\\\/\(\)\{\};/g;
                                 var min_length = 6;
@@ -163,7 +163,7 @@ form_widget.prototype.show_progress = function ()
     {
         $(this.progress.button).show();
     }
-}
+};
 
 form_widget.prototype.validate = function (field,type)
 // on-the-fly validation of a field
@@ -199,6 +199,7 @@ form_widget.prototype.grouping = function( group_id, fields)
 {
     var name;
     var index;
+    var field;
     var group = [];             // Holds the actual field objects gathered from this.fields,
                                 // identified by the name in fields[]
     for (name in fields)
@@ -207,12 +208,15 @@ form_widget.prototype.grouping = function( group_id, fields)
       {
           for (field in this.fields)
           {
-              index = this.field_index(fields[name]);
-              group.push(this.fields[index]);
+              if (typeof this.fields[field] ===  'object')
+              {
+                  index = this.field_index(fields[name]);
+                  group.push(this.fields[index]);
+              }
           }
       }
     }
-    this.groups.push(new Field_Group(group_id, group);
+    this.groups.push(new Field_Group(group_id, group));
 };
 
 form_widget.prototype.progress_button = function (element)
@@ -256,14 +260,17 @@ form_widget.prototype.name_swap = function (str)
     var ch;
     for (ch in this.swap_char_map)
     {
-        var pattern = new RegExp(ch);
-        if (pattern.test(str))
+        if (typeof this.swap_char_map[ch] === 'string')
         {
-            return str.replace(pattern, this.swap_char_map[ch]);
+            var pattern = new RegExp(ch);
+            if (pattern.test(str))
+            {
+                return str.replace(pattern, this.swap_char_map[ch]);
+            }
         }
     }
     return str;
-}
+};
 
 form_widget.prototype.create_form = function (/*optional =>*/form_name, css_class)
 // After setting all of the form information, adding fields, groups, etc., you call this method 
@@ -316,14 +323,7 @@ form_widget.prototype.create_form = function (/*optional =>*/form_name, css_clas
         }
         this.group = 0;
         $(this.groups[this.group]).show('slide', {direction: "right"}, 250);
-        if (typeof this.progress.button === "undefined")
-        {
-            console.warn("You have not set a progress button! Users will not be able to use this form! Just call widget.progress_button('element_name')");
-        }
-        else
-        {
-            this.enable_progress_button();
-        }
+        this.enable_progress_button();
         if (this.progress.end === 0)
         {
             this.progress.end = this.groups.length;
@@ -357,7 +357,7 @@ form_widget.prototype.format_element = function (el)
         el = "#"+el;
     }
     return $(el);
-}
+};
 
 form_widget.prototype.set_ajax = function(bool, success_callback)
 // sets whether a form should be submitted asynchronously.
@@ -439,7 +439,7 @@ form_widget.prototype.field_index = function (field)
         }
     }
     return undefined;
-}
+};
 
 form_widget.prototype.add_text = function (field, text)
 {
@@ -450,7 +450,7 @@ form_widget.prototype.add_text = function (field, text)
     div.name = this.fields[index].name;
     $(div).addClass('form flavor');
     this.fields[index] = div;
-}
+};
 
 form_widget.prototype.set_instructions = function (element)
 // Sets the DOM object in which the instructions should appear. 

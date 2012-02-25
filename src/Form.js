@@ -30,7 +30,7 @@ Form.prototype.IE_Compliant = function (element)
         return div;
     }
     return element;
-}
+};
 
 Form.prototype.create_text_field = function (name, value, style)
 // Creates an input element with a type of text. 
