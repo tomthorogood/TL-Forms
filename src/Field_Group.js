@@ -9,7 +9,7 @@ function Field_Group (name, array)
     this.inputs = [];
     this.field_names = [];
     this.div = document.createElement('div');
-    $(this.div).addClass('tl form group');
+    $(this.div).addClass('tl form group').hide();
     for (var i = 0; i < array.length; i++)
     {
         this.div.appendChild(array[i].model);

@@ -1,4 +1,4 @@
-function form_widget (method, handler, /*optional*/no_overlay, /*required if setting no_overlay to true*/element)
+function Form_Widget (method, handler, /*optional*/no_overlay, /*required if setting no_overlay to true*/element)
 //The form widget class by default creates forms in a lightbox style overlay, which requires the overlay class
 //(turnleftllc.com/api/tl_overlay.js)
 //
@@ -8,7 +8,7 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
 // element is only required if no_overlay is set to true, and should be the element in which you wish the form to appear.
 //
 // example:
-//     var widget = new form_widget('POST', 'scripts/contact.php', true, '#contact_form');
+//     var widget = new Form_Widget('POST', 'scripts/contact.php', true, '#contact_form');
 {
     //renders in an overlay unless this is explicitly set to true.
     if (!no_overlay === true)
@@ -114,7 +114,7 @@ function form_widget (method, handler, /*optional*/no_overlay, /*required if set
     };
 }
 
-form_widget.prototype.show_progress = function ()
+Form_Widget.prototype.show_progress = function ()
 {
     var group = this.groups[this.progress.current-1];
     var names = group.field_names; //Each of the field names in the group.
@@ -159,13 +159,13 @@ form_widget.prototype.show_progress = function ()
     }
 };
 
-form_widget.prototype.validate = function (field,type)
+Form_Widget.prototype.validate = function (field,type)
 // on-the-fly validation of a field
 {
     this.valid[type].validate(field);
 };
 
-form_widget.prototype.add_field = function (type, name, value, /*optional => */css_class, valid_as, required)
+Form_Widget.prototype.add_field = function (type, name, value, /*optional => */css_class, valid_as, required)
 // adds a field into the form widget.
 // example:
 //     widget.add_field("text", "email_address", "Your eMail Address", "form_email_field", "email");
@@ -175,15 +175,13 @@ form_widget.prototype.add_field = function (type, name, value, /*optional => */c
     var test;
     if (typeof valid_as !== "undefined")
     {
-        test = this.valid[type].validate;
+        test = this.valid[valid_as].validate;
     }
-
     var field = new Element(type,name,value,css_class,test,this.show_progress,required);
-
     this.fields.push(field);
 };
 
-form_widget.prototype.grouping = function( group_id, fields) 
+Form_Widget.prototype.grouping = function( group_id, fields) 
 // Using grouping will allow you to process methods for individual groups of fields, instead of talking
 // to the entire form all at once. In order to group two fields together, they must already be in this.fields[]
 // example:
@@ -213,7 +211,7 @@ form_widget.prototype.grouping = function( group_id, fields)
     this.groups.push(new Field_Group(group_id, group));
 };
 
-form_widget.prototype.progress_button = function (element)
+Form_Widget.prototype.progress_button = function (element)
 // if using the grouping method, you must have a progress button. This is where you set it.
 // The element parameter can be an id, an id-string (beginning with '#'), or an element itself.
 // <div id='progress_button'></div>
@@ -228,7 +226,7 @@ form_widget.prototype.progress_button = function (element)
     this.progress.button = this.format_element(element);
 };
 
-form_widget.prototype.enable_progress_button = function ()
+Form_Widget.prototype.enable_progress_button = function ()
 // private method which binds click functionality to the progress bar
 // warns the developer in the console if this is called before a progress bar is set.
 // It'll help with debugging, just in case you forget. 
@@ -247,7 +245,7 @@ form_widget.prototype.enable_progress_button = function ()
     $(this.progress.button).hide();
 };
 
-form_widget.prototype.name_swap = function (str)
+Form_Widget.prototype.name_swap = function (str)
 // Iterates through the swap_char_map property, searching for instances of the keys, replacing them with the keyed values.
 // Returns after the first match, otherwise, returns the string in its original form.
 {
@@ -266,11 +264,11 @@ form_widget.prototype.name_swap = function (str)
     return str;
 };
 
-form_widget.prototype.create_form = function (/*optional =>*/form_name, css_class)
+Form_Widget.prototype.create_form = function (/*optional =>*/form_name, css_class)
 // After setting all of the form information, adding fields, groups, etc., you call this method 
 // to build the form and append it to your document.
 //
-// var widget = new form_widget('POST', 'handler.php');
+// var widget = new Form_Widget('POST', 'handler.php');
 // widget.add_field('text', 'first_name', 'Your First Name');
 // widget.add_field('text', 'last_name', 'Your Last Name');
 // widget.add_field('submit', 'submit', 'Register');
@@ -312,11 +310,11 @@ form_widget.prototype.create_form = function (/*optional =>*/form_name, css_clas
             var g = this.groups[group];
             if (typeof g === "object")
             {
-                form.appendChild(g);
+                form.appendChild(g.div);
             }
         }
         this.group = 0;
-        $(this.groups[this.group]).show('slide', {direction: "right"}, 250);
+        $(this.groups[this.group].div).show('slide', {direction: "right"}, 250);
         this.enable_progress_button();
         if (this.progress.end === 0)
         {
@@ -324,8 +322,6 @@ form_widget.prototype.create_form = function (/*optional =>*/form_name, css_clas
         }
         this.initialize_progress();
     }
-
-
     $('input[type=text]', form).one('focus', function() { $(this).val('');});
     this.element.appendChild(form);
     $('.swap.focus').hide();
@@ -338,7 +334,7 @@ form_widget.prototype.create_form = function (/*optional =>*/form_name, css_clas
     });
 };
 
-form_widget.prototype.format_element = function (el)
+Form_Widget.prototype.format_element = function (el)
 // takes an argument, determines whether it's a DOM object or a string, and
 // returns it as a DOM object, otherwise, returns the object unchanged..
 {
@@ -353,7 +349,7 @@ form_widget.prototype.format_element = function (el)
     return $(el);
 };
 
-form_widget.prototype.set_ajax = function(bool, success_callback)
+Form_Widget.prototype.set_ajax = function(bool, success_callback)
 // sets whether a form should be submitted asynchronously.
 // REQUIRES the ajaxSubmit plugin found here: http://jquery.malsup.com/form/
 {
@@ -371,7 +367,7 @@ form_widget.prototype.set_ajax = function(bool, success_callback)
     }
 };
 
-form_widget.prototype.track_progress = function ( parent_bar, animated_bar )
+Form_Widget.prototype.track_progress = function ( parent_bar, animated_bar )
 // Adding a progress bar will make a pretty animated bar as one progresses through the form. 
 // Everyone loves progress bars!
 // You can even set bar start/end manually to cover multiple pages of your form.
@@ -390,7 +386,7 @@ form_widget.prototype.track_progress = function ( parent_bar, animated_bar )
     };
 };
 
-form_widget.prototype._progress = function ()
+Form_Widget.prototype._progress = function ()
 // Private method that extends the progress bar, changes the form content to that of the next content group,
 // and animates it all. 
 // Does not need to be called implicitly. Called by default when the progress button is clicked.
@@ -407,14 +403,14 @@ form_widget.prototype._progress = function ()
     $(this.instructions).hide('slide', {direction: 'left'}, 150);
 };
 
-form_widget.prototype.initialize_progress = function ()
+Form_Widget.prototype.initialize_progress = function ()
 // A private method that starts the progress bar. Called during the create_form method.
 {
     var start = this.progress.start;
     $(this.progress.bar).css({"width" : start+"%"});
 };
 
-form_widget.prototype.add_instructions = function (field, text)
+Form_Widget.prototype.add_instructions = function (field, text)
 // Allows the addition of instructions to a form field. Instructions are shown when a field has focus.
 // example:
 //     widget.add_field('password', user_pw, /*it's annoying to put values in password fields*/, "");
@@ -423,7 +419,7 @@ form_widget.prototype.add_instructions = function (field, text)
     this.field_instructions[field] = text;
 };
 
-form_widget.prototype.field_index = function (field)
+Form_Widget.prototype.field_index = function (field)
 {
     for (var i = 0; i < this.fields.length; i++)
     {
@@ -435,7 +431,7 @@ form_widget.prototype.field_index = function (field)
     return undefined;
 };
 
-form_widget.prototype.add_text = function (field, text)
+Form_Widget.prototype.add_text = function (field, text)
 {
     var index = this.field_index(field);
     var div = document.createElement('div');
@@ -446,7 +442,7 @@ form_widget.prototype.add_text = function (field, text)
     this.fields[index] = div;
 };
 
-form_widget.prototype.set_instructions = function (element)
+Form_Widget.prototype.set_instructions = function (element)
 // Sets the DOM object in which the instructions should appear. 
 // continuing the above example:
 //     widget.set_instructions('#instructions');
