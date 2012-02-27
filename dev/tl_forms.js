@@ -296,7 +296,7 @@ function Element(type, /*optional >>*/name, value, css_class, test, callback, re
     this.callback = callback || function() {return true;};
     this.input = [];
     this.name = name;
-    this.validator = typeof test !== "undefined" ? new Validator( test, function() {return this.callback();} ) : undefined;
+    this.validator = typeof test !== "undefined" ?  test : undefined;
     this.required = typeof required !== "undefined" ? required : false;
     this.valid = !(typeof this.validator !== "undefined" && this.required === true);
     switch(this.type)
@@ -330,6 +330,10 @@ function Element(type, /*optional >>*/name, value, css_class, test, callback, re
         {
             this.input.push(elements[e]);
         }
+    }
+    if (typeof this.test !== "undefined")
+    {
+        this.validator.validate(this, this.callback);
     }
 }
 
@@ -617,7 +621,6 @@ Form_Widget.prototype.add_field = function (type, name, value, /*optional => */c
     if (typeof valid_as !== "undefined")
     {
         test = this.valid[valid_as].validate;
-        console.debug(this.valid[valid_as].test);
     }
     var field = new Element(type,name,value,css_class,test,this.show_progress,required);
     this.fields.push(field);
