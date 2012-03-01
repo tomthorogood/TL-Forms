@@ -48,12 +48,28 @@ The base use is fairly straightforward. The following must be included in your H
 
 ===============================
 
-CLASSES:
+TOOLS:
+    Within the tools folder, there is a shell command called "build". This runs concat.py, and subsequently minify.py.
+    concat.py will take everything src/ and make one big file in dev/ called tl_forms.js.
+    minify.py will use the YUI Compressor to minify that giant file and place it in min/
+    As a general convention, before committing, please use these tools.
 
-Parse: Parses strings and separates them into values for the Form class. 
- -> in such cases, a double colon serves as the delimiter: 03::My Option::Selected
-Form: Creates DOM elements and sets their values
-validator: Validates fields
-form_widget: Implements, builds, and renders the form.
-
+    If you are on Windows, please create a version of these that works on Windows!  The YUI Compressor
+    is included in tools/ as well. No need to have that already installed, but you will need Java. 
 ===============================
+
+DEVELOPMENT:
+    To keep things organized, each individual "class" (Constructor & prototypes) is stored separate in src/
+    as is Java's convention. I'm not a fabulous Java developer by trade, but I rather love the 
+    one class per file requirement. 
+
+    The good news is that it's organized. The bad news is that debugging can be a little bit of a pain.
+    It is easiest if the unit testing html file includes each individual src/ class. However before moving
+    to production, you'll want to use the giant concatenated version in dev/ so that when you're ready to deploy,
+    the only thing you'll have to change is dev/ -> min/. if you start running into problems, change it back.
+    
+    Never edit the file in dev/. If you edit that, and then reuse the build tool, you'll erase your changes. 
+    Never edit the file in dev/. If you edit that, and then reuse the build tool, you'll erase your changes.
+    Never--you get this, right?
+
+    
