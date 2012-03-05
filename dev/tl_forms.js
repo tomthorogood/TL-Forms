@@ -474,14 +474,16 @@ function Validator (against, /*optional => */delay, animation_speed, valid_css, 
     this.set_text = {};
 
     // This is the beefy part of this class, and is the method that ties everything together.
-    // The element parameter needs to be an instance of the Element class. 
-    this.validate = function (element, callback)
+    // The element parameter needs to be an instance of the Element class.
+}
+
+Validator.prototype.validate = function (element, callback)
     { // Validates fields after an x ms DELAY, where x is this.DELAY; 
       // after testing, animates the field to the valid or invalid css.
+        console.debug(this);
         var _self_ = this;
         var timer;
         var valid;
-        console.debug(element);
         // Because radio buttons are different than other fields, they must be handled
         // differently. This takes care of that.
         if (element.type.toLowerCase() === "radio")
@@ -492,26 +494,22 @@ function Validator (against, /*optional => */delay, animation_speed, valid_css, 
                 console.debug(element.input[i]);
                 // Binds a change event to each of these dom objects.
                 $(element.input[i]).change(function() {
-                    // Runs an enclosure when any of these are changed. 
-                    (function() {
+                    console.debug('called!');
 
-                        console.debug('called!');
+                    // The value of the radio button that has just been clicked
+                    var value = this.value;
 
-                        // The value of the radio button that has just been clicked
-                        var value = this.value;
+                    // Invokes the test method to determine validity
+                    valid = _self_.test(value);
 
-                        // Invokes the test method to determine validity
-                        valid = _self_.test(value);
+                    // @TODO: this doesn't actually work...
+                    // var css = valid ? _self_.css.valid : _self_.css.invalid;
 
-                        // @TODO: this doesn't actually work...
-                        // var css = valid ? _self_.css.valid : _self_.css.invalid;
+                    // Sets the valid attribute of the actual Element object
+                    element.valid = valid;
 
-                        // Sets the valid attribute of the actual Element object
-                        element.valid = valid;
-
-                        // @TODO: Css for Radio buttons doesn't work yet...
-                        // $(element).animate(css,_self_.ANIMATION_SPEED);
-                    });
+                    // @TODO: Css for Radio buttons doesn't work yet...
+                    // $(element).animate(css,_self_.ANIMATION_SPEED);
                 });
             }
         }
@@ -569,10 +567,12 @@ function Validator (against, /*optional => */delay, animation_speed, valid_css, 
         }
         if (typeof callback === "function")
         {
-            callback();
+            return function() 
+            {
+                callback();
+            };
         }
     };
-}
 
 function Form_Widget (method, handler, /*optional*/no_overlay, /*required if setting no_overlay to true*/element)
 //The form widget class by default creates forms in a lightbox style overlay, which requires the overlay class
@@ -753,7 +753,7 @@ Form_Widget.prototype.add_field = function (type, name, value, /*optional => */c
     var test;
     if (typeof valid_as !== "undefined")
     {
-        test = this.valid[valid_as].validate;
+        test = this.valid[valid_as];
     }
     var field = new Element(type,name,value,css_class,test,this.show_progress,required);
     this.fields.push(field);

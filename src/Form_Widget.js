@@ -177,7 +177,7 @@ Form_Widget.prototype.add_field = function (type, name, value, /*optional => */c
     var test;
     if (typeof valid_as !== "undefined")
     {
-        test = this.valid[valid_as].validate;
+        test = this.valid[valid_as];
     }
     var field = new Element(type,name,value,css_class,test,this.show_progress,required);
     this.fields.push(field);
