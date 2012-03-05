@@ -7,6 +7,7 @@ filetype = ".js"
 classes = [
         "base",
         "Form",
+        "Form_Bridge",
         "Element",
         "Field_Group",
         "Validator",
