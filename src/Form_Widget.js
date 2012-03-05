@@ -116,6 +116,7 @@ function Form_Widget (method, handler, /*optional*/no_overlay, /*required if set
 
 Form_Widget.prototype.show_progress = function ()
 {
+    console.debug('running show_progress');
     var group = this.groups[this.progress.current-1];
     var names = group.field_names; //Each of the field names in the group.
     var all = {};
@@ -158,14 +159,6 @@ Form_Widget.prototype.show_progress = function ()
         $(this.progress.button).show();
     }
 };
-
-/**I THINK THIS IS DEAD CODE!
-Form_Widget.prototype.validate = function (field,type)
-// on-the-fly validation of a field
-{
-    this.valid[type].validate(field);
-};
-**/
 
 Form_Widget.prototype.add_field = function (type, name, value, /*optional => */css_class, valid_as, required)
 // adds a field into the form widget.

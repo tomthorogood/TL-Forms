@@ -47,7 +47,6 @@ function Validator (against, /*optional => */delay, animation_speed, valid_css, 
 Validator.prototype.validate = function (element, callback)
     { // Validates fields after an x ms DELAY, where x is this.DELAY; 
       // after testing, animates the field to the valid or invalid css.
-        console.debug(this);
         var _self_ = this;
         var timer;
         var valid;
@@ -58,10 +57,8 @@ Validator.prototype.validate = function (element, callback)
             // Iterates through each of the possible choices of the radio button
             for (var i = 0; i < element.input.length; i++)
             {
-                console.debug(element.input[i]);
                 // Binds a change event to each of these dom objects.
                 $(element.input[i]).change(function() {
-                    console.debug('called!');
 
                     // The value of the radio button that has just been clicked
                     var value = this.value;
@@ -137,7 +134,7 @@ Validator.prototype.validate = function (element, callback)
             return function() 
             {
                 callback();
-            };
+            }();
         }
     };
 
