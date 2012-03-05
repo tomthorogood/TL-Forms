@@ -403,7 +403,7 @@ function Element(type, /*optional >>*/name, value, css_class, test, callback, re
         // for easy accessing of the physical input objects
         this.input.push(elements[i]);
     }
-    if (typeof this.test !== "undefined")
+    if (typeof this.validator !== "undefined")
     {
         // Binds validation handlers to the instance of Element that
         // has just been created.
@@ -475,13 +475,13 @@ function Validator (against, /*optional => */delay, animation_speed, valid_css, 
 
     // This is the beefy part of this class, and is the method that ties everything together.
     // The element parameter needs to be an instance of the Element class. 
-    this.validate = function (element)
+    this.validate = function (element, callback)
     { // Validates fields after an x ms DELAY, where x is this.DELAY; 
       // after testing, animates the field to the valid or invalid css.
         var _self_ = this;
         var timer;
         var valid;
-
+        console.debug(element);
         // Because radio buttons are different than other fields, they must be handled
         // differently. This takes care of that.
         if (element.type.toLowerCase() === "radio")
@@ -566,6 +566,10 @@ function Validator (against, /*optional => */delay, animation_speed, valid_css, 
                     }, _self_.DELAY);
                 }
             });
+        }
+        if (typeof callback === "function")
+        {
+            callback();
         }
     };
 }
@@ -731,11 +735,13 @@ Form_Widget.prototype.show_progress = function ()
     }
 };
 
+/**I THINK THIS IS DEAD CODE!
 Form_Widget.prototype.validate = function (field,type)
 // on-the-fly validation of a field
 {
     this.valid[type].validate(field);
 };
+**/
 
 Form_Widget.prototype.add_field = function (type, name, value, /*optional => */css_class, valid_as, required)
 // adds a field into the form widget.

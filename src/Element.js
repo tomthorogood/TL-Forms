@@ -79,7 +79,7 @@ function Element(type, /*optional >>*/name, value, css_class, test, callback, re
         // for easy accessing of the physical input objects
         this.input.push(elements[i]);
     }
-    if (typeof this.test !== "undefined")
+    if (typeof this.validator !== "undefined")
     {
         // Binds validation handlers to the instance of Element that
         // has just been created.
