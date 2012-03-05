@@ -29,12 +29,12 @@ Form_Bridge.prototype.create_submit_button = function (name, value, css)
     return this.creator.create_submit_button (name,value,css);
 };
 
-Form_Bridge.prototype.create_radio_button(name,value,css)
+Form_Bridge.prototype.create_radio_button = function (name,value,css)
 {
     return this.creator.create_radio_button(name,value,css);
 };
 
-Form_Bridge.prototype.create_textarea(name,value,css)
+Form_Bridge.prototype.create_textarea = function (name,value,css)
 {
     return this.creator.create_textarea(name,value,css);
 };

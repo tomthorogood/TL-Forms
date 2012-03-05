@@ -277,9 +277,49 @@ Form.prototype.create_checkbox = function (name, values, style)
 {
     return this.create_multi_button(name, values, style, "checkbox");
 };
-/**@public tl_form - a Form object.
+//................
+// TL-Forms
+//  Form Bridge
+//      This is an abstraction layer that bridges the Element class to the Form class,
+//      so that if the Form class changes, the Element class does not have to be altered.
+
+function Form_Bridge ()
+{
+    this.creator = new Form();
+}
+
+Form_Bridge.prototype.create_text_field = function (name,value,css)
+{
+    return this.creator.create_text_field(name,value,css);
+};
+
+Form_Bridge.prototype.create_hidden_field = function (name,value)
+{
+    return this.creator.create_hidden_field(name,value);
+};
+
+Form_Bridge.prototype.create_dropdown_menu = function (name,values,css)
+{
+    return this.creator.create_dropdown_menu(name,values,css);
+};
+
+Form_Bridge.prototype.create_submit_button = function (name, value, css)
+{
+    return this.creator.create_submit_button (name,value,css);
+};
+
+Form_Bridge.prototype.create_radio_button = function (name,value,css)
+{
+    return this.creator.create_radio_button(name,value,css);
+};
+
+Form_Bridge.prototype.create_textarea = function (name,value,css)
+{
+    return this.creator.create_textarea(name,value,css);
+};
+/**@public this.form_creator.- a Form object.
  */
-var tl_form = new Form();
+
 
 /**@Class Element
  * Creates an input field element.
@@ -290,50 +330,79 @@ var tl_form = new Form();
  * @param {Function} callback A callback function, taking no parameters and returning no parameters, which will be executed after the test.
  * @param {Boolean} reqired Whether or not the field must be filled out (and valid) before the form is submitted.
  */
+
 function Element(type, /*optional >>*/name, value, css_class, test, callback, required)
 {
+    // Form_Bridge interacts with a form creation class in order to provide DOM objects.
+    this.form_creator = new Form_Bridge();
+
+    // type is whatever kind of field it is. Valid options are (currently):
+    // text, hidden, password, dropdown, submit, radio, textarea
     this.type = type;
-    this.callback = callback || function() {return true;};
+
+    // A callback function to be executed once the validator has finished validating the field.
+    this.validator_callback = callback || function() {return true;};
+
+    // The actual DOM object. In most cases, this will be a single element array, however
+    // for dropdowns and radio buttons, there will be multiple elements in this array.
     this.input = [];
+
+    // the name of the field. Note that this will be exactly the value of the 'name' attribute in the dom object.
+    // It is replicated for more efficient accessibility, and also accounts for the fact that multiple DOM objects in,
+    // for instance, radio buttons, need to have the same name. 
     this.name = name;
+
+    // This is a validation method, which will get fed into a Validator object.
     this.validator = typeof test !== "undefined" ?  test : undefined;
+
+    // A boolean representing whether or not a valid input of this element is required in order 
+    // to progress through the rest of the form.
     this.required = typeof required !== "undefined" ? required : false;
+
+    // A boolean field representing whether or not the input set has been validated.
+    // This will be manipulated by the validator.
     this.valid = !(typeof this.validator !== "undefined" && this.required === true);
+
+    // Creates a DOM object, or set of DOM objects wrapped in a div, based on the type passed in.
+    // This model is therefor a collection of DOM objects which will model the information on an actual page.
+    // This is what is seen by the end user.
     switch(this.type)
     {
-        case 'text'     :       this.model = tl_form.create_text_field(name, value, css_class);
+        case 'text'     :       this.model = this.form_creator.create_text_field(name, value, css_class);
                                 this.tag = "input";
                                 break;
-        case 'hidden'   :       this.model = tl_form.create_hidden_field(name, value);
+        case 'hidden'   :       this.model = this.form_creator.create_hidden_field(name, value);
                                 this.tag = "input";
                                 break;
-        case 'password' :       this.model = tl_form.create_password_field(name, value, css_class);
+        case 'password' :       this.model = this.form_creator.create_password_field(name, value, css_class);
                                 this.tag = "input";
                                 break;
-        case "dropdown" :       this.model = tl_form.create_dropdown_menu(name,value,css_class);
+        case "dropdown" :       this.model = this.form_creator.create_dropdown_menu(name,value,css_class);
                                 this.tag = "select";
                                 break;
-        case 'submit'   :       this.model = tl_form.create_submit_button(name, value, css_class);
+        case 'submit'   :       this.model = this.form_creator.create_submit_button(name, value, css_class);
                                 this.tag = "input";
                                 break;
-        case 'radio'    :       this.model = tl_form.create_radio_button(name, value, css_class);
+        case 'radio'    :       this.model = this.form_creator.create_radio_button(name, value, css_class);
                                 this.tag = "input";
                                 break;
-        case 'textarea' :       this.model = tl_form.create_textarea(name, value, css_class);
+        case 'textarea' :       this.model = this.form_creator.create_textarea(name, value, css_class);
                                 this.tag = "textarea";
     }
 
+    // A local array populated by the DOM elements.
     var elements = (this.model.getElementsByTagName(this.tag));
-    for (var e in elements)
+    for (var i = 0; i < elements.length; i++)
     {
-        if (typeof e !== 'undefined')
-        {
-            this.input.push(elements[e]);
-        }
+        // Reference these objects in the instance array 'input' 
+        // for easy accessing of the physical input objects
+        this.input.push(elements[e]);
     }
     if (typeof this.test !== "undefined")
     {
-        this.validator.validate(this, this.callback);
+        // Binds validation handlers to the instance of Element that
+        // has just been created.
+        this.validator.validate(this, this.validator_callback);
     }
 }
 
@@ -374,48 +443,94 @@ function Validator (against, /*optional => */delay, animation_speed, valid_css, 
                                    });
 */
 {
+    // A speed of the validation animation set in milliseconds.
     this.ANIMATION_SPEED = animation_speed || 250;
+
+    // The delay before the validation script runs. If a user continues
+    // to type in the field being validated, it will be this.DELAY milliseconds
+    // before the validation script runs. 
     this.DELAY = delay || 650;
+
+    // This defaults to teal background and white text for valid input
+    // and red background with white text for invalid input
     this.css = {
         valid   :   valid_css || {"background-color" : "#00afad","color" : "#fff"},
         invalid :   invalid_css || {"background-color" : "#811", "color" : "#fff"}
     };
+
+    // This is the actual validation test that is to be run. It is a function that
+    // should accept a field value and return a boolean value.
+    // It can also return an array of [BOOL, STRING], where the string element
+    // represents feedback to the user.
     this.test = against;
+
+    // If the latter return case exists for the test function, this will 
+    // temporarily hold the feedback text until it can be appended to the DOM.
     this.set_text = {};
+
+    // This is the beefy part of this class, and is the method that ties everything together.
+    // The element parameter needs to be an instance of the Element class. 
     this.validate = function (element)
     { // Validates fields after an x ms DELAY, where x is this.DELAY; 
       // after testing, animates the field to the valid or invalid css.
         var _self_ = this;
         var timer;
         var valid;
+
+        // Because radio buttons are different than other fields, they must be handled
+        // differently. This takes care of that.
         if (element.type.toLowerCase() === "radio")
         {
+            // Iterates through each of the possible choices of the radio button
             for (var i = 0; i < element.input.length; i++)
             {
+                // Binds a change event to each of these dom objects.
                 $(element.input[i]).change(function() {
+
+                    // Runs an enclosure when any of these are changed. 
                     return function() {
+
+                        // The value of the radio button that has just been clicked
                         var value = this.value;
+
+                        // Invokes the test method to determine validity
                         valid = _self_.test(value);
-                        var css = valid ? _self_.css.valid : _self_.css.invalid;
+
+                        // @TODO: this doesn't actually work...
+                        // var css = valid ? _self_.css.valid : _self_.css.invalid;
+
+                        // Sets the valid attribute of the actual Element object
                         element.valid = valid;
-                        $(element).animate(css,_self_.ANIMATION_SPEED);
+
+                        // @TODO: Css for Radio buttons doesn't work yet...
+                        // $(element).animate(css,_self_.ANIMATION_SPEED);
                     };
-                });
+                }.call(this));
             }
         }
         else
         {
+            // Each time a key goes up in the field being tested, start the process
             $(element).keyup(function() {
+
+                // But stop and reset the process if someone types again (unless they are tabbing out of the field)
                 $(this).keydown(function(event) {
                     if (event.keyCode !== 9)
-                    {//Unless the user is tabbing out the field, reset so that we don't annoy them while they're trying to type
+
+                    { //We don't want to annoy people while they are typing.
                         clearTimeout(timer);
                     }
                 });
+
+                // If there is something in the field and it's not an empty string...
                 if (typeof element.value !== 'undefined' && element.value.length > 0)
                 {
+                    // Set a timer!
                     timer = setTimeout(function() {
-                        valid = _self_.test(element.value);
+
+                        // If the timer goes off, test the field value against the validation handler.
+                        valid = _self_.test(element.input[0].value);
+
                         switch(typeof valid)
                         {//If an object is returned, we parse the first value of the array as true/false, and the second 
                             //as feedback to the user.
@@ -428,11 +543,16 @@ function Validator (against, /*optional => */delay, animation_speed, valid_css, 
                             default         :   valid = true; //Don't punish the user if the programmer doesn't know what they're doing!
                                                 element.valid = valid;
                         }
+
+                        // Animate the field for visual feedback.
                         $(element.input[0]).animate(css,_self_.ANIMATION_SPEED,function() {
+
                             if (typeof _self_.set_text[element.name] === "string")
+                            // Check to see if the text of this field is supposed to change in response. If so,
                             {//Change the text if there has been alternate text provided
                                 element.input[0].value = _self_.set_text[element.name];
                                 delete _self_.set_text[element.name];
+                                // make sure we don't accidentally overwrite valid text later.
                             }
                         });
                                 
