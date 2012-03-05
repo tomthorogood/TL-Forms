@@ -14,6 +14,11 @@ Form_Bridge.prototype.create_text_field = function (name,value,css)
     return this.creator.create_text_field(name,value,css);
 };
 
+Form_Bridge.prototype.create_password_field = function (name,value,css)
+{
+    return this.creator.create_password_field(name,value,css);
+};
+
 Form_Bridge.prototype.create_hidden_field = function (name,value)
 {
     return this.creator.create_hidden_field(name,value);

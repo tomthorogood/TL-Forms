@@ -77,7 +77,7 @@ function Element(type, /*optional >>*/name, value, css_class, test, callback, re
     {
         // Reference these objects in the instance array 'input' 
         // for easy accessing of the physical input objects
-        this.input.push(elements[e]);
+        this.input.push(elements[i]);
     }
     if (typeof this.test !== "undefined")
     {

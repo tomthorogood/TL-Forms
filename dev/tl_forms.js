@@ -293,6 +293,11 @@ Form_Bridge.prototype.create_text_field = function (name,value,css)
     return this.creator.create_text_field(name,value,css);
 };
 
+Form_Bridge.prototype.create_password_field = function (name,value,css)
+{
+    return this.creator.create_password_field(name,value,css);
+};
+
 Form_Bridge.prototype.create_hidden_field = function (name,value)
 {
     return this.creator.create_hidden_field(name,value);
@@ -396,7 +401,7 @@ function Element(type, /*optional >>*/name, value, css_class, test, callback, re
     {
         // Reference these objects in the instance array 'input' 
         // for easy accessing of the physical input objects
-        this.input.push(elements[e]);
+        this.input.push(elements[i]);
     }
     if (typeof this.test !== "undefined")
     {
@@ -484,11 +489,13 @@ function Validator (against, /*optional => */delay, animation_speed, valid_css, 
             // Iterates through each of the possible choices of the radio button
             for (var i = 0; i < element.input.length; i++)
             {
+                console.debug(element.input[i]);
                 // Binds a change event to each of these dom objects.
                 $(element.input[i]).change(function() {
-
                     // Runs an enclosure when any of these are changed. 
-                    return function() {
+                    (function() {
+
+                        console.debug('called!');
 
                         // The value of the radio button that has just been clicked
                         var value = this.value;
@@ -504,8 +511,8 @@ function Validator (against, /*optional => */delay, animation_speed, valid_css, 
 
                         // @TODO: Css for Radio buttons doesn't work yet...
                         // $(element).animate(css,_self_.ANIMATION_SPEED);
-                    };
-                }.call(this));
+                    });
+                });
             }
         }
         else

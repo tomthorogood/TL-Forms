@@ -48,7 +48,7 @@ function Validator (against, /*optional => */delay, animation_speed, valid_css, 
         var _self_ = this;
         var timer;
         var valid;
-
+        console.debug(element);
         // Because radio buttons are different than other fields, they must be handled
         // differently. This takes care of that.
         if (element.type.toLowerCase() === "radio")
@@ -56,11 +56,13 @@ function Validator (against, /*optional => */delay, animation_speed, valid_css, 
             // Iterates through each of the possible choices of the radio button
             for (var i = 0; i < element.input.length; i++)
             {
+                console.debug(element.input[i]);
                 // Binds a change event to each of these dom objects.
                 $(element.input[i]).change(function() {
-
                     // Runs an enclosure when any of these are changed. 
-                    return function() {
+                    (function() {
+
+                        console.debug('called!');
 
                         // The value of the radio button that has just been clicked
                         var value = this.value;
@@ -76,8 +78,8 @@ function Validator (against, /*optional => */delay, animation_speed, valid_css, 
 
                         // @TODO: Css for Radio buttons doesn't work yet...
                         // $(element).animate(css,_self_.ANIMATION_SPEED);
-                    };
-                }.call(this));
+                    });
+                });
             }
         }
         else
