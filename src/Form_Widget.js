@@ -31,6 +31,9 @@ function Form_Widget (method, handler, /*optional*/no_overlay, /*required if set
         '_x_'     :   'd'           //Will attempt to swap fields with 'key' with fields with 'value' on field focus (useful for password fields)
     };
     this.valid = { // validators go here!
+        any     :   new Validator(function(value) {
+                        return value.length > 0;
+                    }),
         email   :   new Validator(function(value) {
             //validates the structure of an email address
                         var pattern = /[A-Za-z0-9%._\-]*@[A-Zz-z0-9\-]*\.[a-zA-Z0-9]{2,4}/gi;
@@ -198,12 +201,45 @@ Form_Widget.prototype.progress_button = function (element)
     this.progress.button = this.format_element(element);
 };
 
+Form_Widget.prototype.has_requirements = function (group_index)
+{
+    var group = this.groups[group_index].elements;
+    for (var e = 0; e < group.length; e++)
+    {
+        if (group[e].required)
+        {
+            return true;
+        }
+    }
+    return false;
+};
+
+Form_Widget.prototype.hide_if_true  = function(toggle, result)
+{
+    if (result)
+    {
+        $(toggle).hide();
+    }
+    else
+    {
+        $(toggle).show();
+    }
+};
+
 Form_Widget.prototype.enable_progress_button = function ()
 // private method which binds click functionality to the progress bar
 {
     var _self_ = this;
     var current_group;
     var next_group;
+    var requirements = false;
+    var f;
+    
+    if (this.group === 0)
+    {
+        this.hide_if_true(this.progress.button, this.has_requirements (this.group));
+    }
+
     
     $(_self_.progress.button).click(function() {
 
@@ -218,10 +254,10 @@ Form_Widget.prototype.enable_progress_button = function ()
                 _self_.animate_progress_bar();
             }
         });
-        $(this).hide();
+        _self_.hide_if_true(_self_.progress.button, _self_.has_requirements (_self_.group) );
     });
-    $(this.progress.button).hide();
-};
+    
+}
 
 Form_Widget.prototype.name_swap = function (str)
 // Iterates through the swap_char_map property, searching for instances of the keys, replacing them with the keyed values.

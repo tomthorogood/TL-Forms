@@ -127,8 +127,6 @@ function allow_progress (group, button)
         
         if (e === group.elements.length-1 && typeof cluster_validity[element.name] !== "undefined")
         {
-            console.debug('testing last element');
-            console.debug('this element is ' + cluster_validity[element.name]);
             switch(cluster_validity[element.name])
             {
                 case true   :   $(button).show();
