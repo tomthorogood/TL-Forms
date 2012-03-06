@@ -801,8 +801,12 @@ function Form_Widget (method, handler, /*optional*/no_overlay, /*required if set
                                 {
                                     return false;
                                 }
-                            })
-    };
+                            }),
+        no_digits        :   new Validator(function(value) {
+                                 var bad_chars = /\d.*/;
+                                 return !bad_chars.test(value);
+                             })
+    }
 }
 
 
