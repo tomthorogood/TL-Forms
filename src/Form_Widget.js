@@ -114,51 +114,6 @@ function Form_Widget (method, handler, /*optional*/no_overlay, /*required if set
     };
 }
 
-Form_Widget.prototype.show_progress = function ()
-{
-    console.debug('running show_progress');
-    var group = this.groups[this.progress.current-1];
-    var names = group.field_names; //Each of the field names in the group.
-    var all = {};
-    var show_progress_button = true;
-    var i;
-    for (i = 0; i < names.length; i++)
-    {// for each field name in the list of names
-        var n = names[i];   
-        var elements = [];  //create an array to hold the location of this field in this.fields[]
-        for (var j = 0; j < this.fields.length; j++)
-        {
-            if (this.fields[j].name === n)
-            {
-                elements.push(j); //store the location of the field in this.fields[]
-            }
-        }
-        for (var k = 0; k < elements.length; k++)
-        {//for each field index in elements
-            if (this.fields[k].valid === true) //if the field has been marked as valid
-            {
-                all[n] = true;
-                break;
-            }
-            else
-            {
-                all[n] = false;
-            }
-        }
-    }
-    for (var m = 0; m < names.length; m++)
-    {//for everything we've already done
-        if (! all[m])
-        {//if it's not true, we cannot progress
-            show_progress_button = false;
-            break;
-        }
-    }
-    if (show_progress_button === true)
-    {
-        $(this.progress.button).show();
-    }
-};
 
 Form_Widget.prototype.add_field = function (type, name, value, /*optional => */css_class, valid_as, required)
 // adds a field into the form widget.
@@ -172,7 +127,7 @@ Form_Widget.prototype.add_field = function (type, name, value, /*optional => */c
     {
         test = this.valid[valid_as];
     }
-    var field = new Element(type,name,value,css_class,test,this.show_progress,required);
+    var field = new Element(type,name,value,css_class,test,required);
     this.fields.push(field);
 };
 
@@ -204,6 +159,20 @@ Form_Widget.prototype.grouping = function( group_id, fields)
       }
     }
     this.groups.push(new Field_Group(group_id, group));
+
+    // Now that we have a Field_Group object, we need to bind 
+    // the callback validity test to each element in the group.
+    var last = this.groups.length-1;
+    var grp = this.groups[last];
+    var button = this.progress.button;
+    for (var e = 0; e < grp.inputs.length; e++)
+    {
+        var element = grp.inputs[e];
+        var callback = function () { 
+            allow_progress (grp, button);
+        };
+        element.live_validation(callback);
+    }
 };
 
 Form_Widget.prototype.progress_button = function (element)

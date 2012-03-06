@@ -48,6 +48,82 @@ function Parse (string)
     return [string,string];
 }
 
+// Tests to see if fields in the group are valid.
+// If all fields are valid, the button is displayed.
+
+
+// Params:
+//      group   :   a Field_Group object
+//      button  :   a DOM Object
+function allow_progress (group, button)
+{
+    console.debug('running show_progress');
+    var progress = false;
+    var cluster_validity = {};
+    var previous_cluster;
+
+    for (var e = 0; e < group.elements.length; e++)
+    {
+        element = group.elements[e];
+
+        if (e === 0)
+        {
+            previous_cluster = element.name;
+        }
+
+        // If the current element name is different from the one before it,
+        // we are done with the previous cluster.
+        else if (previous_cluster !== element.name)
+        {
+            // If the previous cluster is false, then not all clusters
+            // can be valid, and there is no reason to continue this test.
+            if (!cluster_validity[previous_cluster])
+            {
+                break;
+            }
+
+            // Otherwise, we have no further need to continue testing
+            // the previous cluster, so we can ignore it in the future.
+            else
+            {
+                previous_cluster = element.name;
+            }
+        }
+
+        // If this cluster has not yet been tested...
+        if (typeof cluster_validity[element.name] === "undefined")
+        {
+            cluster_validity[element.name] = element.valid;
+        }
+
+        // If it has already been determined that at least one 
+        // field in this custer is valid, we do not need
+        // to continue testing this field.
+        else if (cluster_validity[element.name] === true)
+        {
+            continue;
+        }
+        else
+        {
+            cluster.validity[element.name] = element.valid;
+        }
+
+        // If we're on the last loop, all previous tests have passed.
+        // Therefore, we only need to check whether this last loop is true.
+        // That will determine the final result.
+        if (e === group.elements.length-1)
+        {
+            switch(cluster.validity[element.name])
+            {
+                case true   :   $(button).show();
+                                break;
+                default     :   $(button).hide();
+                                break;
+            }
+        }
+    }
+}
+
 function Form()
 //Constructor for the form class. Since this class contains mostly class methods,
 //not much is constructed.
@@ -336,7 +412,7 @@ Form_Bridge.prototype.create_textarea = function (name,value,css)
  * @param {Boolean} reqired Whether or not the field must be filled out (and valid) before the form is submitted.
  */
 
-function Element(type, /*optional >>*/name, value, css_class, test, callback, required)
+function Element(type, /*optional >>*/name, value, css_class, test, required)
 {
     // Form_Bridge interacts with a form creation class in order to provide DOM objects.
     this.form_creator = new Form_Bridge();
@@ -403,14 +479,24 @@ function Element(type, /*optional >>*/name, value, css_class, test, callback, re
         // for easy accessing of the physical input objects
         this.input.push(elements[i]);
     }
-    if (typeof this.validator !== "undefined")
-    {
-        // Binds validation handlers to the instance of Element that
-        // has just been created.
-        this.validator.validate(this, this.validator_callback);
-    }
 }
 
+Element.prototype.assign_callback = function (callback)
+{
+    this.validator_callback = callback;
+};
+
+Element.prototype.live_validation = function (callback)
+{
+    if (typeof callback !== "undefined")
+    {
+        this.validator_callback = callback;
+    }
+    if (typeof this.validator !== "undefined")
+    {
+        this.validator.validate(this, this.validator_callback);
+    }
+};
 /**@Class Field_Group 
  * A group of fields that should be displayed and validated together.
  * @param {String} name The name of the group
@@ -419,6 +505,7 @@ function Element(type, /*optional >>*/name, value, css_class, test, callback, re
 
 function Field_Group (name, array)
 {
+    this.elements = array;
     this.inputs = [];
     this.field_names = [];
     this.div = document.createElement('div');
@@ -687,51 +774,6 @@ function Form_Widget (method, handler, /*optional*/no_overlay, /*required if set
     };
 }
 
-Form_Widget.prototype.show_progress = function ()
-{
-    console.debug('running show_progress');
-    var group = this.groups[this.progress.current-1];
-    var names = group.field_names; //Each of the field names in the group.
-    var all = {};
-    var show_progress_button = true;
-    var i;
-    for (i = 0; i < names.length; i++)
-    {// for each field name in the list of names
-        var n = names[i];   
-        var elements = [];  //create an array to hold the location of this field in this.fields[]
-        for (var j = 0; j < this.fields.length; j++)
-        {
-            if (this.fields[j].name === n)
-            {
-                elements.push(j); //store the location of the field in this.fields[]
-            }
-        }
-        for (var k = 0; k < elements.length; k++)
-        {//for each field index in elements
-            if (this.fields[k].valid === true) //if the field has been marked as valid
-            {
-                all[n] = true;
-                break;
-            }
-            else
-            {
-                all[n] = false;
-            }
-        }
-    }
-    for (var m = 0; m < names.length; m++)
-    {//for everything we've already done
-        if (! all[m])
-        {//if it's not true, we cannot progress
-            show_progress_button = false;
-            break;
-        }
-    }
-    if (show_progress_button === true)
-    {
-        $(this.progress.button).show();
-    }
-};
 
 Form_Widget.prototype.add_field = function (type, name, value, /*optional => */css_class, valid_as, required)
 // adds a field into the form widget.
@@ -745,7 +787,7 @@ Form_Widget.prototype.add_field = function (type, name, value, /*optional => */c
     {
         test = this.valid[valid_as];
     }
-    var field = new Element(type,name,value,css_class,test,this.show_progress,required);
+    var field = new Element(type,name,value,css_class,test,required);
     this.fields.push(field);
 };
 
@@ -777,6 +819,20 @@ Form_Widget.prototype.grouping = function( group_id, fields)
       }
     }
     this.groups.push(new Field_Group(group_id, group));
+
+    // Now that we have a Field_Group object, we need to bind 
+    // the callback validity test to each element in the group.
+    var last = this.groups.length-1;
+    var grp = this.groups[last];
+    var button = this.progress.button;
+    for (var e = 0; e < grp.inputs.length; e++)
+    {
+        var element = grp.inputs[e];
+        var callback = function () { 
+            allow_progress (grp, button);
+        };
+        element.live_validation(callback);
+    }
 };
 
 Form_Widget.prototype.progress_button = function (element)

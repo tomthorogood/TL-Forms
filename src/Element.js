@@ -12,7 +12,7 @@
  * @param {Boolean} reqired Whether or not the field must be filled out (and valid) before the form is submitted.
  */
 
-function Element(type, /*optional >>*/name, value, css_class, test, callback, required)
+function Element(type, /*optional >>*/name, value, css_class, test, required)
 {
     // Form_Bridge interacts with a form creation class in order to provide DOM objects.
     this.form_creator = new Form_Bridge();
@@ -79,11 +79,21 @@ function Element(type, /*optional >>*/name, value, css_class, test, callback, re
         // for easy accessing of the physical input objects
         this.input.push(elements[i]);
     }
-    if (typeof this.validator !== "undefined")
-    {
-        // Binds validation handlers to the instance of Element that
-        // has just been created.
-        this.validator.validate(this, this.validator_callback);
-    }
 }
 
+Element.prototype.assign_callback = function (callback)
+{
+    this.validator_callback = callback;
+};
+
+Element.prototype.live_validation = function (callback)
+{
+    if (typeof callback !== "undefined")
+    {
+        this.validator_callback = callback;
+    }
+    if (typeof this.validator !== "undefined")
+    {
+        this.validator.validate(this, this.validator_callback);
+    }
+};

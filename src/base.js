@@ -48,3 +48,79 @@ function Parse (string)
     return [string,string];
 }
 
+// Tests to see if fields in the group are valid.
+// If all fields are valid, the button is displayed.
+
+
+// Params:
+//      group   :   a Field_Group object
+//      button  :   a DOM Object
+function allow_progress (group, button)
+{
+    console.debug('running show_progress');
+    var progress = false;
+    var cluster_validity = {};
+    var previous_cluster;
+
+    for (var e = 0; e < group.elements.length; e++)
+    {
+        element = group.elements[e];
+
+        if (e === 0)
+        {
+            previous_cluster = element.name;
+        }
+
+        // If the current element name is different from the one before it,
+        // we are done with the previous cluster.
+        else if (previous_cluster !== element.name)
+        {
+            // If the previous cluster is false, then not all clusters
+            // can be valid, and there is no reason to continue this test.
+            if (!cluster_validity[previous_cluster])
+            {
+                break;
+            }
+
+            // Otherwise, we have no further need to continue testing
+            // the previous cluster, so we can ignore it in the future.
+            else
+            {
+                previous_cluster = element.name;
+            }
+        }
+
+        // If this cluster has not yet been tested...
+        if (typeof cluster_validity[element.name] === "undefined")
+        {
+            cluster_validity[element.name] = element.valid;
+        }
+
+        // If it has already been determined that at least one 
+        // field in this custer is valid, we do not need
+        // to continue testing this field.
+        else if (cluster_validity[element.name] === true)
+        {
+            continue;
+        }
+        else
+        {
+            cluster.validity[element.name] = element.valid;
+        }
+
+        // If we're on the last loop, all previous tests have passed.
+        // Therefore, we only need to check whether this last loop is true.
+        // That will determine the final result.
+        if (e === group.elements.length-1)
+        {
+            switch(cluster.validity[element.name])
+            {
+                case true   :   $(button).show();
+                                break;
+                default     :   $(button).hide();
+                                break;
+            }
+        }
+    }
+}
+
