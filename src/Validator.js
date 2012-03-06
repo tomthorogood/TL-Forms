@@ -117,6 +117,7 @@ Validator.prototype.validate = function (element, callback)
                                                 element.valid = valid;
                         }
 
+                        
                         // Animate the field for visual feedback.
                         $(input).animate(css,_self_.ANIMATION_SPEED,function() {
 

@@ -153,19 +153,11 @@ Form_Widget.prototype.grouping = function( group_id, fields)
     var field;
     var group = [];             // Holds the actual field objects gathered from this.fields,
                                 // identified by the name in fields[]
-    for (name in fields)
+    
+    for (var name = 0; name < fields.length; name++)
     {
-      if (typeof fields[name] === "string")
-      {
-          for (field in this.fields)
-          {
-              if (typeof this.fields[field] ===  'object')
-              {
-                  index = this.field_index(fields[name]);
-                  group.push(this.fields[index]);
-              }
-          }
-      }
+          index = this.field_index(fields[name]);
+          group.push(this.fields[index]);
     }
     this.groups.push(new Field_Group(group_id, group));
 
@@ -180,7 +172,10 @@ Form_Widget.prototype.grouping = function( group_id, fields)
         var callback = function () { 
             allow_progress (grp, button);
         };
-        element.live_validation(callback);
+        if (!element.validation_lives)
+        {
+            element.live_validation(callback);
+        }
     }
 };
 

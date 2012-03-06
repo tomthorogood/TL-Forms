@@ -65,6 +65,17 @@ function allow_progress (group, button)
     {
         element = group.elements[e];
 
+
+        // FIRST:
+        //  Determine whether we need to test this element by
+        //  checking to see if we're on a new cluster.
+        //  If we're on a new cluster, and the previous cluster
+        //  is 'false', then we need not continue, because
+        //  the field set is invalid. 
+        //  
+        //  ====
+        //
+        // If we're on the first element, initialize the previous_cluster variable.
         if (e === 0)
         {
             previous_cluster = element.name;
@@ -89,6 +100,10 @@ function allow_progress (group, button)
             }
         }
 
+        // NEXT:
+        //  If we reach this point, either we're in the first cluster still, OR
+        //  we're on a later cluster, and all previous clusters are valid.
+
         // If this cluster has not yet been tested...
         if (typeof cluster_validity[element.name] === "undefined")
         {
@@ -100,18 +115,20 @@ function allow_progress (group, button)
         // to continue testing this field.
         else if (cluster_validity[element.name] === true)
         {
-            continue;
+            // If we're on the last loop, all previous tests have passed.
+            // Therefore, we only need to check whether this last loop is true.
+            // That will determine the final result.
+                continue;
         }
         else
         {
             cluster_validity[element.name] = element.valid;
         }
-
-        // If we're on the last loop, all previous tests have passed.
-        // Therefore, we only need to check whether this last loop is true.
-        // That will determine the final result.
-        if (e === group.elements.length-1)
+        
+        if (e === group.elements.length-1 && typeof cluster_validity[element.name] !== "undefined")
         {
+            console.debug('testing last element');
+            console.debug('this element is ' + cluster_validity[element.name]);
             switch(cluster_validity[element.name])
             {
                 case true   :   $(button).show();
@@ -119,6 +136,7 @@ function allow_progress (group, button)
                 default     :   $(button).hide();
                                 break;
             }
+            break;
         }
     }
 }
@@ -431,6 +449,7 @@ function Element(type, /*optional >>*/name, value, css_class, test, required)
 
     // This is a validation method, which will get fed into a Validator object.
     this.validator = typeof test !== "undefined" ?  test : undefined;
+    this.validation_lives = false;
 
     // A boolean representing whether or not a valid input of this element is required in order 
     // to progress through the rest of the form.
@@ -493,6 +512,7 @@ Element.prototype.assign_callback = function (callback)
 
 Element.prototype.live_validation = function (callback)
 {
+    this.validation_lives = true;
     if (typeof callback !== "undefined")
     {
         this.validator_callback = callback;
@@ -642,6 +662,7 @@ Validator.prototype.validate = function (element, callback)
                                                 element.valid = valid;
                         }
 
+                        
                         // Animate the field for visual feedback.
                         $(input).animate(css,_self_.ANIMATION_SPEED,function() {
 
@@ -822,19 +843,11 @@ Form_Widget.prototype.grouping = function( group_id, fields)
     var field;
     var group = [];             // Holds the actual field objects gathered from this.fields,
                                 // identified by the name in fields[]
-    for (name in fields)
+    
+    for (var name = 0; name < fields.length; name++)
     {
-      if (typeof fields[name] === "string")
-      {
-          for (field in this.fields)
-          {
-              if (typeof this.fields[field] ===  'object')
-              {
-                  index = this.field_index(fields[name]);
-                  group.push(this.fields[index]);
-              }
-          }
-      }
+          index = this.field_index(fields[name]);
+          group.push(this.fields[index]);
     }
     this.groups.push(new Field_Group(group_id, group));
 
@@ -849,7 +862,10 @@ Form_Widget.prototype.grouping = function( group_id, fields)
         var callback = function () { 
             allow_progress (grp, button);
         };
-        element.live_validation(callback);
+        if (!element.validation_lives)
+        {
+            element.live_validation(callback);
+        }
     }
 };
 

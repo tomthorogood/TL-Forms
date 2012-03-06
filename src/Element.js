@@ -32,6 +32,7 @@ function Element(type, /*optional >>*/name, value, css_class, test, required)
 
     // This is a validation method, which will get fed into a Validator object.
     this.validator = typeof test !== "undefined" ?  test : undefined;
+    this.validation_lives = false;
 
     // A boolean representing whether or not a valid input of this element is required in order 
     // to progress through the rest of the form.
@@ -94,6 +95,7 @@ Element.prototype.assign_callback = function (callback)
 
 Element.prototype.live_validation = function (callback)
 {
+    this.validation_lives = true;
     if (typeof callback !== "undefined")
     {
         this.validator_callback = callback;

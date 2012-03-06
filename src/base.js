@@ -65,6 +65,17 @@ function allow_progress (group, button)
     {
         element = group.elements[e];
 
+
+        // FIRST:
+        //  Determine whether we need to test this element by
+        //  checking to see if we're on a new cluster.
+        //  If we're on a new cluster, and the previous cluster
+        //  is 'false', then we need not continue, because
+        //  the field set is invalid. 
+        //  
+        //  ====
+        //
+        // If we're on the first element, initialize the previous_cluster variable.
         if (e === 0)
         {
             previous_cluster = element.name;
@@ -89,6 +100,10 @@ function allow_progress (group, button)
             }
         }
 
+        // NEXT:
+        //  If we reach this point, either we're in the first cluster still, OR
+        //  we're on a later cluster, and all previous clusters are valid.
+
         // If this cluster has not yet been tested...
         if (typeof cluster_validity[element.name] === "undefined")
         {
@@ -100,18 +115,20 @@ function allow_progress (group, button)
         // to continue testing this field.
         else if (cluster_validity[element.name] === true)
         {
-            continue;
+            // If we're on the last loop, all previous tests have passed.
+            // Therefore, we only need to check whether this last loop is true.
+            // That will determine the final result.
+                continue;
         }
         else
         {
             cluster_validity[element.name] = element.valid;
         }
-
-        // If we're on the last loop, all previous tests have passed.
-        // Therefore, we only need to check whether this last loop is true.
-        // That will determine the final result.
-        if (e === group.elements.length-1)
+        
+        if (e === group.elements.length-1 && typeof cluster_validity[element.name] !== "undefined")
         {
+            console.debug('testing last element');
+            console.debug('this element is ' + cluster_validity[element.name]);
             switch(cluster_validity[element.name])
             {
                 case true   :   $(button).show();
@@ -119,6 +136,7 @@ function allow_progress (group, button)
                 default     :   $(button).hide();
                                 break;
             }
+            break;
         }
     }
 }
