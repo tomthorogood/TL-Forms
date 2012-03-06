@@ -105,7 +105,7 @@ function allow_progress (group, button)
         }
         else
         {
-            cluster.validity[element.name] = element.valid;
+            cluster_validity[element.name] = element.valid;
         }
 
         // If we're on the last loop, all previous tests have passed.
@@ -113,7 +113,7 @@ function allow_progress (group, button)
         // That will determine the final result.
         if (e === group.elements.length-1)
         {
-            switch(cluster.validity[element.name])
+            switch(cluster_validity[element.name])
             {
                 case true   :   $(button).show();
                                 break;

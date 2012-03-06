@@ -165,9 +165,9 @@ Form_Widget.prototype.grouping = function( group_id, fields)
     var last = this.groups.length-1;
     var grp = this.groups[last];
     var button = this.progress.button;
-    for (var e = 0; e < grp.inputs.length; e++)
+    for (var e = 0; e < grp.elements.length; e++)
     {
-        var element = grp.inputs[e];
+        var element = grp.elements[e];
         var callback = function () { 
             allow_progress (grp, button);
         };

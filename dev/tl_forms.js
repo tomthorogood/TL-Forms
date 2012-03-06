@@ -105,7 +105,7 @@ function allow_progress (group, button)
         }
         else
         {
-            cluster.validity[element.name] = element.valid;
+            cluster_validity[element.name] = element.valid;
         }
 
         // If we're on the last loop, all previous tests have passed.
@@ -113,7 +113,7 @@ function allow_progress (group, button)
         // That will determine the final result.
         if (e === group.elements.length-1)
         {
-            switch(cluster.validity[element.name])
+            switch(cluster_validity[element.name])
             {
                 case true   :   $(button).show();
                                 break;
@@ -421,9 +421,6 @@ function Element(type, /*optional >>*/name, value, css_class, test, required)
     // text, hidden, password, dropdown, submit, radio, textarea
     this.type = type;
 
-    // A callback function to be executed once the validator has finished validating the field.
-    this.validator_callback = callback || function() {return true;};
-
     // The actual DOM object. In most cases, this will be a single element array, however
     // for dropdowns and radio buttons, there will be multiple elements in this array.
     this.input = [];
@@ -594,6 +591,13 @@ Validator.prototype.validate = function (element, callback)
 
                     // @TODO: Css for Radio buttons doesn't work yet...
                     // $(element).animate(css,_self_.ANIMATION_SPEED);
+                    if (typeof callback === "function")
+                    {
+                        return function() 
+                        {
+                            callback();
+                        }();
+                    }
                 });
             }
         }
@@ -644,17 +648,17 @@ Validator.prototype.validate = function (element, callback)
                                 // make sure we don't accidentally overwrite valid text later.
                             }
                         });
+                        if (typeof callback === "function")
+                        {
+                            return function() 
+                            {
+                                callback();
+                            }();
+                        }
                                 
                     }, _self_.DELAY);
                 }
             });
-        }
-        if (typeof callback === "function")
-        {
-            return function() 
-            {
-                callback();
-            }();
         }
     };
 
@@ -825,9 +829,9 @@ Form_Widget.prototype.grouping = function( group_id, fields)
     var last = this.groups.length-1;
     var grp = this.groups[last];
     var button = this.progress.button;
-    for (var e = 0; e < grp.inputs.length; e++)
+    for (var e = 0; e < grp.elements.length; e++)
     {
-        var element = grp.inputs[e];
+        var element = grp.elements[e];
         var callback = function () { 
             allow_progress (grp, button);
         };

@@ -74,6 +74,13 @@ Validator.prototype.validate = function (element, callback)
 
                     // @TODO: Css for Radio buttons doesn't work yet...
                     // $(element).animate(css,_self_.ANIMATION_SPEED);
+                    if (typeof callback === "function")
+                    {
+                        return function() 
+                        {
+                            callback();
+                        }();
+                    }
                 });
             }
         }
@@ -124,17 +131,17 @@ Validator.prototype.validate = function (element, callback)
                                 // make sure we don't accidentally overwrite valid text later.
                             }
                         });
+                        if (typeof callback === "function")
+                        {
+                            return function() 
+                            {
+                                callback();
+                            }();
+                        }
                                 
                     }, _self_.DELAY);
                 }
             });
-        }
-        if (typeof callback === "function")
-        {
-            return function() 
-            {
-                callback();
-            }();
         }
     };
 

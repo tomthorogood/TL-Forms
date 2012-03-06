@@ -21,9 +21,6 @@ function Element(type, /*optional >>*/name, value, css_class, test, required)
     // text, hidden, password, dropdown, submit, radio, textarea
     this.type = type;
 
-    // A callback function to be executed once the validator has finished validating the field.
-    this.validator_callback = callback || function() {return true;};
-
     // The actual DOM object. In most cases, this will be a single element array, however
     // for dropdowns and radio buttons, there will be multiple elements in this array.
     this.input = [];
