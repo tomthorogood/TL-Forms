@@ -475,6 +475,15 @@ function Element(type, /*optional >>*/name, value, css_class, test, required)
         // for easy accessing of the physical input objects
         this.input.push(elements[i]);
     }
+
+    // If elements is empty, it's because it has no children, meaning this.model
+    // is the actual input field. This will be the case if we're dealing with a single-field
+    // 'cluster' and we're not using Internet Explorer.
+    if (elements.length === 0)
+    {
+        this.input.push(this.model);
+    }
+
 }
 
 Element.prototype.assign_callback = function (callback)
@@ -683,6 +692,7 @@ function Form_Widget (method, handler, /*optional*/no_overlay, /*required if set
     {
         this.element = element;
     }
+    this.ANIMATION_SPEED = 150;
     this.method = method;
     this.handler = handler;
     this.fields = []; // stores the form fields added after instantiation
@@ -1081,51 +1091,21 @@ Form_Widget.prototype.set_instructions = function (element)
 // continuing the above example:
 //     widget.set_instructions('#instructions');
 {
-    var _self = this;
-    // Attempts to detrmine the state of the instructions div based on what was based into the method.
-    // Before continuing, element must be set to a DOM object which jQuery can manipulate.
-    if (typeof element === "string")
-    {
-        if (typeof document.getElementById(element.replace(/#/,"")) === "undefined")
-        {
-            this.instructions = document.createElement('div');
-            this.instructions.id = element.replace(/#/,"");
-            element = this.instructions;
-        }
-        else
-        {
-            element = document.getElementById(element.replace(/#/,""));
-            this.instructions = element;
-        }
-    }
-    if (this.groups.length === 0)
-    {
-        var field;
-        $.each(this.fields, function(e,obj) {
-            $(obj).focus(function() {
-                var  name = $(obj).attr('name');
-                $(element).hide('slide', {direction: 'left'},150,function() {
-                    $(this).empty().text(_self.field_instructions[name]);
-                    $(this).show('slide', {direction: 'right'},150);
+    var _self_ = this;
+    var name;
+    var field;
+    element = this.format_element(element);
+
+    $.each(this.fields, function(e, field) {
+        $.each(field.input, function (e, input) {
+            $(input).focus(function() {
+                name = field.name;
+                $(element).hide('slide', {direction: 'left'}, _self_.ANIMATION_SPEED, function() {
+                    $(this).empty().text(_self_.field_instructions[name]);
+                    $(this).show('slide', {direction: 'right'}, _self_.ANIMATION_SPEED);
                 });
             });
         });
-    }
-    else
-    {
-        var group;
-        for (group in this.groups)
-        {
-            $(this.groups[group]).children().each(function () {
-                $(this).focus(function() {
-                    var name = this.name;
-                    $(element).hide('slide',{direction:'left'},150,function() {
-                        $(this).empty().html(_self.field_instructions[name]);
-                        $(this).show('slide',{direction:'right'},150);
-                    });
-                });
-            });
-        }
-    }
+    });
 };
 

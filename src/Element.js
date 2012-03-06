@@ -76,6 +76,15 @@ function Element(type, /*optional >>*/name, value, css_class, test, required)
         // for easy accessing of the physical input objects
         this.input.push(elements[i]);
     }
+
+    // If elements is empty, it's because it has no children, meaning this.model
+    // is the actual input field. This will be the case if we're dealing with a single-field
+    // 'cluster' and we're not using Internet Explorer.
+    if (elements.length === 0)
+    {
+        this.input.push(this.model);
+    }
+
 }
 
 Element.prototype.assign_callback = function (callback)

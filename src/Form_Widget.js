@@ -20,6 +20,7 @@ function Form_Widget (method, handler, /*optional*/no_overlay, /*required if set
     {
         this.element = element;
     }
+    this.ANIMATION_SPEED = 150;
     this.method = method;
     this.handler = handler;
     this.fields = []; // stores the form fields added after instantiation
@@ -418,36 +419,21 @@ Form_Widget.prototype.set_instructions = function (element)
 // continuing the above example:
 //     widget.set_instructions('#instructions');
 {
-    var _self = this;
+    var _self_ = this;
+    var name;
+    var field;
     element = this.format_element(element);
-    if (this.groups.length === 0)
-    {
-        var field;
-        $.each(this.fields, function(e,obj) {
-            $(obj).focus(function() {
-                var  name = $(obj).attr('name');
-                $(element).hide('slide', {direction: 'left'},150,function() {
-                    $(this).empty().text(_self.field_instructions[name]);
-                    $(this).show('slide', {direction: 'right'},150);
+
+    $.each(this.fields, function(e, field) {
+        $.each(field.input, function (e, input) {
+            $(input).focus(function() {
+                name = field.name;
+                $(element).hide('slide', {direction: 'left'}, _self_.ANIMATION_SPEED, function() {
+                    $(this).empty().text(_self_.field_instructions[name]);
+                    $(this).show('slide', {direction: 'right'}, _self_.ANIMATION_SPEED);
                 });
             });
         });
-    }
-    else
-    {
-        var group;
-        for (group in this.groups)
-        {
-            $(this.groups[group]).children().each(function () {
-                $(this).focus(function() {
-                    var name = this.name;
-                    $(element).hide('slide',{direction:'left'},150,function() {
-                        $(this).empty().html(_self.field_instructions[name]);
-                        $(this).show('slide',{direction:'right'},150);
-                    });
-                });
-            });
-        }
-    }
+    });
 };
 
