@@ -216,9 +216,10 @@ Form_Widget.prototype.enable_progress_button = function ()
             $(next_group).show('slide', {direction: "right"}, 250);
             if (typeof _self_.progress.bar !== "undefined")
             {
-                _self_._progress();
+                _self_.animate_progress_bar();
             }
         });
+        $(this).hide();
     });
     $(this.progress.button).hide();
 };
@@ -364,7 +365,7 @@ Form_Widget.prototype.track_progress = function ( parent_bar, animated_bar )
     };
 };
 
-Form_Widget.prototype._progress = function ()
+Form_Widget.prototype.animate_progress_bar = function ()
 // Private method that extends the progress bar, changes the form content to that of the next content group,
 // and animates it all. 
 // Does not need to be called implicitly. Called by default when the progress button is clicked.
