@@ -786,19 +786,26 @@ function Form_Widget (method, handler, /*optional*/no_overlay, /*required if set
 }
 
 
-Form_Widget.prototype.add_field = function (type, name, value, /*optional => */css_class, valid_as, required)
+Form_Widget.prototype.add_field = function (params)
 // adds a field into the form widget.
 // example:
 //     widget.add_field("text", "email_address", "Your eMail Address", "form_email_field", "email");
 // note that "dropdown" and "radio" require an array of options as their value paramter 
 // (see Form create_radio_button method)
-{ 
+{
     var test;
-    if (typeof valid_as !== "undefined")
+    if (typeof params.valid_as !== "undefined")
     {
-        test = this.valid[valid_as];
+        test = this.valid[params.valid_as];
     }
-    var field = new Element(type,name,value,css_class,test,required);
+    var field = new Element(
+            params.type,
+            params.name,
+            params.value,
+            params.css,
+            params.test,
+            params.required
+            );
     this.fields.push(field);
 };
 
