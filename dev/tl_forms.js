@@ -57,7 +57,6 @@ function Parse (string)
 //      button  :   a DOM Object
 function allow_progress (group, button)
 {
-    console.debug('running show_progress');
     var progress = false;
     var cluster_validity = {};
     var previous_cluster;
@@ -860,10 +859,17 @@ Form_Widget.prototype.enable_progress_button = function ()
 // It'll help with debugging, just in case you forget. 
 {
     var _self_ = this;
+    var current_group;
+    var next_group;
+    
     $(_self_.progress.button).click(function() {
-        $(_self_.groups[_self_.group]).hide('slide', {direction : "left"}, 250, function() {
-            _self_.group ++;
-            $(_self_.groups[_self_.group]).show('slide', {direction: "right"}, 250);
+
+        current_group = _self_.groups[_self_.group].div;
+        _self_.group++;
+        next_group = _self_.groups[_self_.group].div;
+
+        $(current_group).hide('slide', {direction : "left"}, 250, function() {
+            $(next_group).show('slide', {direction: "right"}, 250);
             if (typeof _self_.progress.bar !== "undefined")
             {
                 _self_._progress();

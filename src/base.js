@@ -57,7 +57,6 @@ function Parse (string)
 //      button  :   a DOM Object
 function allow_progress (group, button)
 {
-    console.debug('running show_progress');
     var progress = false;
     var cluster_validity = {};
     var previous_cluster;
