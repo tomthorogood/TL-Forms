@@ -66,14 +66,9 @@ Validator.prototype.validate = function (element, callback)
                     // Invokes the test method to determine validity
                     valid = _self_.test(value);
 
-                    // @TODO: this doesn't actually work...
-                    // var css = valid ? _self_.css.valid : _self_.css.invalid;
-
                     // Sets the valid attribute of the actual Element object
                     element.valid = valid;
 
-                    // @TODO: Css for Radio buttons doesn't work yet...
-                    // $(element).animate(css,_self_.ANIMATION_SPEED);
                     if (typeof callback === "function")
                     {
                         return function() 
@@ -86,26 +81,29 @@ Validator.prototype.validate = function (element, callback)
         }
         else
         {
+            var input = element.input[0];
             // Each time a key goes up in the field being tested, start the process
-            $(element).keyup(function() {
+            $(input).keyup(function() {
 
                 // But stop and reset the process if someone types again (unless they are tabbing out of the field)
-                $(this).keydown(function(event) {
+                $(this).one('keydown',function(event) {
                     if (event.keyCode !== 9)
 
                     { //We don't want to annoy people while they are typing.
+                        //@TODO: Why is this running six times with every keystroke?
+                        console.debug('timeout cleared');
                         clearTimeout(timer);
                     }
                 });
 
                 // If there is something in the field and it's not an empty string...
-                if (typeof element.value !== 'undefined' && element.value.length > 0)
+                if (typeof input.value !== 'undefined' && input.value.length > 0)
                 {
                     // Set a timer!
                     timer = setTimeout(function() {
 
                         // If the timer goes off, test the field value against the validation handler.
-                        valid = _self_.test(element.input[0].value);
+                        valid = _self_.test(input.value);
 
                         switch(typeof valid)
                         {//If an object is returned, we parse the first value of the array as true/false, and the second 
@@ -121,12 +119,12 @@ Validator.prototype.validate = function (element, callback)
                         }
 
                         // Animate the field for visual feedback.
-                        $(element.input[0]).animate(css,_self_.ANIMATION_SPEED,function() {
+                        $(input).animate(css,_self_.ANIMATION_SPEED,function() {
 
                             if (typeof _self_.set_text[element.name] === "string")
                             // Check to see if the text of this field is supposed to change in response. If so,
                             {//Change the text if there has been alternate text provided
-                                element.input[0].value = _self_.set_text[element.name];
+                                input.value = _self_.set_text[element.name];
                                 delete _self_.set_text[element.name];
                                 // make sure we don't accidentally overwrite valid text later.
                             }
