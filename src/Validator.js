@@ -91,7 +91,6 @@ Validator.prototype.validate = function (element, callback)
 
                     { //We don't want to annoy people while they are typing.
                         //@TODO: Why is this running six times with every keystroke?
-                        console.debug('timeout cleared');
                         clearTimeout(timer);
                     }
                 });

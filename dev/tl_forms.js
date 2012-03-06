@@ -616,7 +616,6 @@ Validator.prototype.validate = function (element, callback)
 
                     { //We don't want to annoy people while they are typing.
                         //@TODO: Why is this running six times with every keystroke?
-                        console.debug('timeout cleared');
                         clearTimeout(timer);
                     }
                 });
@@ -796,8 +795,9 @@ Form_Widget.prototype.add_field = function (params)
     var test;
     if (typeof params.valid_as !== "undefined")
     {
-        test = this.valid[params.valid_as];
+        params.test = this.valid[params.valid_as];
     }
+
     var field = new Element(
             params.type,
             params.name,
@@ -870,8 +870,6 @@ Form_Widget.prototype.progress_button = function (element)
 
 Form_Widget.prototype.enable_progress_button = function ()
 // private method which binds click functionality to the progress bar
-// warns the developer in the console if this is called before a progress bar is set.
-// It'll help with debugging, just in case you forget. 
 {
     var _self_ = this;
     var current_group;
