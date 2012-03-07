@@ -16,7 +16,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
 ===============================
 REQUIREMENTS
 
@@ -47,6 +46,43 @@ The base use is fairly straightforward. The following must be included in your H
 <script type="text/javascript" path/to/min/="tl_forms.js"></script>
 
 ===============================
+USE:
+
+Creating a form widget with TL-Forms is super easy.
+To start, instantiate your widget:
+var widget = new Form_Widget(
+    "POST", "handler_url.php", 
+    /* disable overlay */ true, 
+    /* div where your form should appear */ document.getElementById('my_form_goes_here'
+    );
+
+Then, add stuff in!
+
+widget.add_field({
+    name    :   "email_address",
+    type    :   "text",
+    valid_as:   "email",
+    required:   true,
+    value   :   "Enter Your Email Address
+});
+
+Want to break your form into chunks! Split the fields into groups:
+
+widget.grouping("Contact Info", ["email_address", "phone_number"]);
+widget.grouping("Favorite Things", ["color", "food", "dog breed"]);
+
+Want a progress bar?
+
+widget.enable_progress_bar("parent_div", "progress_bar_div");
+widget.progress_button("my_progress_button");
+
+Ajax submission?
+widget.set_ajax(true, "handler_url.php", function() { ...your callback ... });
+
+Instructions to your user?
+widget.add_instructions("email_address", "Please eneter your email address so that we can send you spam!");
+widget.set_instructions("div_where_instructions_should_go");
+================================
 
 TOOLS:
     Within the tools folder, there is a shell command called "build". This runs concat.py, and subsequently minify.py.
