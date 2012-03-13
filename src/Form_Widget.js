@@ -450,10 +450,10 @@ Form_Widget.prototype.add_text = function (field, text)
     var index = this.field_index(field);
     var div = document.createElement('div');
     div.innerHTML = text;
-    div.appendChild(this.fields[index]);
+    div.appendChild(this.fields[index].model);
     div.name = this.fields[index].name;
     $(div).addClass('form flavor');
-    this.fields[index] = div;
+    this.fields[index].model = div;
 };
 
 Form_Widget.prototype.set_instructions = function (element)

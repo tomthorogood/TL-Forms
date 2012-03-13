@@ -159,7 +159,7 @@ Form.prototype.create_file_upload = function (name, style)
     return this.IE_Compliant(file_upload);
 };
 
-Form.create_textarea = function (name, value, style)
+Form.prototype.create_textarea = function (name, value, style)
 // Creates a textarea. Surprised?
 {
     var textarea = document.createElement('textarea');
