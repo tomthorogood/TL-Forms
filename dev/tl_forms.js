@@ -308,6 +308,7 @@ Form.prototype.create_textarea = function (name, value, style)
     {
         name = "textarea";
     }
+    textarea.name = name;
     if (typeof style === "string")
     {
         $(textarea).addClass(style);
@@ -316,6 +317,7 @@ Form.prototype.create_textarea = function (name, value, style)
     {
         textarea.innerHTML = value;
     }
+    console.debug(textarea);
     return this.IE_Compliant(textarea);
 };
 

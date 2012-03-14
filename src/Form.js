@@ -167,6 +167,7 @@ Form.prototype.create_textarea = function (name, value, style)
     {
         name = "textarea";
     }
+    textarea.name = name;
     if (typeof style === "string")
     {
         $(textarea).addClass(style);
