@@ -15,6 +15,7 @@ function Form_Widget (method, handler, /*optional*/no_overlay, /*required if set
     {
         this.overlay = new Overlay();
         this.element = this.overlay.div;
+        this.group_map = {};
     }
     else
     {
@@ -167,11 +168,11 @@ Form_Widget.prototype.grouping = function( group_id, fields)
           group.push(this.fields[index]);
     }
     this.groups.push(new Field_Group(group_id, group));
+    this.groupMap[group_id] = this.groups.length-1;
 
     // Now that we have a Field_Group object, we need to bind 
     // the callback validity test to each element in the group.
-    var last = this.groups.length-1;
-    var grp = this.groups[last];
+    var grp = this.groupMap[group_id];
     var button = this.progress.button;
     for (var e = 0; e < grp.elements.length; e++)
     {
@@ -185,6 +186,18 @@ Form_Widget.prototype.grouping = function( group_id, fields)
         }
     }
 };
+
+Form_Widget.prototype.prepend_flavor_text = function (group_id, text, css)
+{
+    var group = this.groups[this.groupMap[group_id]];
+    group.prepend_text(text, css);
+}
+
+Form_Widget.prototype.append_flavor_text = function (group_id, text, cs)
+{
+    var group = this.groups[this.groupMap[group_id]];
+    group.append_text(text, css);
+}
 
 Form_Widget.prototype.progress_button = function (element)
 // if using the grouping method, you must have a progress button. This is where you set it.
