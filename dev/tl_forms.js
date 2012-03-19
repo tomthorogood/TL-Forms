@@ -317,7 +317,6 @@ Form.prototype.create_textarea = function (name, value, style)
     {
         textarea.innerHTML = value;
     }
-    console.debug(textarea);
     return this.IE_Compliant(textarea);
 };
 
@@ -543,6 +542,45 @@ function Field_Group (name, array)
     }
 }
 
+Field_Group.prototype.add_text = function (text, where, css)
+{
+    var div = document.createElement('div');
+    if (typeof css === "string")
+    {
+        $(div).addClass(css);
+    }
+    else if (typeof css === "object")
+    {
+        $(div).css(css);
+    }
+    if (typeof text === "string")
+    {
+        div.innerHTML = text;
+    }
+    else if (typeof text === "object")
+    {
+        div.appendChild(text);
+    }
+
+    switch(where)
+    {
+        case "before"   :   $(this.div).prepend(div);
+                            break;
+        case "after"    :   $(this.div).append(div);
+                            break;
+    }
+}
+
+Field_Group.prototype.prepend_text = function (text, css)
+{
+    this.add_text(text, "before", css);
+}
+
+Field_Group.prototype.append_text = function (text,css)
+{
+    this.add_text(text, "after", css);
+}
+
 /*.............................................
 The validator() class allows live field validation.
 */
@@ -711,6 +749,7 @@ function Form_Widget (method, handler, /*optional*/no_overlay, /*required if set
         this.element = element;
     }
     this.ANIMATION_SPEED = 150;
+    this.group_map = {};
     this.method = method;
     this.handler = handler;
     this.fields = []; // stores the form fields added after instantiation
@@ -857,11 +896,11 @@ Form_Widget.prototype.grouping = function( group_id, fields)
           group.push(this.fields[index]);
     }
     this.groups.push(new Field_Group(group_id, group));
+    this.group_map[group_id] = this.groups.length-1;
 
     // Now that we have a Field_Group object, we need to bind 
     // the callback validity test to each element in the group.
-    var last = this.groups.length-1;
-    var grp = this.groups[last];
+    var grp = this.groups[this.group_map[group_id]];
     var button = this.progress.button;
     for (var e = 0; e < grp.elements.length; e++)
     {
@@ -875,6 +914,27 @@ Form_Widget.prototype.grouping = function( group_id, fields)
         }
     }
 };
+
+
+// prepend_flavor_text and append_flavor_text add arbitrary HTML to a Field_Group object.
+// This is a more OO way of doing this than the previous workaround, which was:
+//  $(widget.groups[widget.groups.length-1].div).prepend(html);
+// 
+// Now it's just:
+//  widget.grouping('Contact Information', ['first_name', 'last_name', 'email_address'];
+//  widget.prepend_flavor_text('Contact Information', html);
+//
+Form_Widget.prototype.prepend_flavor_text = function (group_id, text, css)
+{
+    var group = this.groups[this.group_map[group_id]];
+    group.prepend_text(text, css);
+}
+
+Form_Widget.prototype.append_flavor_text = function (group_id, text, cs)
+{
+    var group = this.groups[this.group_map[group_id]];
+    group.append_text(text, css);
+}
 
 Form_Widget.prototype.progress_button = function (element)
 // if using the grouping method, you must have a progress button. This is where you set it.

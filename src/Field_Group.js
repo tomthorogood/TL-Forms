@@ -30,7 +30,14 @@ Field_Group.prototype.add_text = function (text, where, css)
     {
         $(div).css(css);
     }
-    div.innerHTML = text;
+    if (typeof text === "string")
+    {
+        div.innerHTML = text;
+    }
+    else if (typeof text === "object")
+    {
+        div.appendChild(text);
+    }
 
     switch(where)
     {
