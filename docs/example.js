@@ -115,23 +115,14 @@ widget.add_field({
     value   :   'All Done!'
 });
 
-var flavor_text = document.createElement('div');
-flavor_text.innerHTML = 'Thanks for filling out this form! I hope you enjoy being harrassed for years to come!';
-
-/* This bit is just a tad complicated, and we'll be adding a method to do this in the future: */
+var flavor_text = 'Thanks for filling out this form! I hope you enjoy being harrassed for years to come!';
+var flavor_css = "form flavor";
 widget.grouping('The End', ['submit']); // Nothing unusual here.
-$(widget.groups[widget.groups.length-1].model).prepend(flavor_text);
-/* That picks the last group's div out of your widget, and prepends the flavor text to be 
- * before the submit button. Breaking it down: 
- *      widget.groups   <-- This is an array of all the groups you've created.
- *      [widget.groups.length-1]    <-- This picks the last element of the array, 
- *                                      the group you just created.
- *      .model  <-- The library refers to HTML elements as models. 
- *      $(...).prepend <-- Uses the jQuery method for prepending information to a DOM element.
- *
- *      Okay, that wasn't so bad.
- * 
- * We're almost done! Now, all we have to do is turn everything on.
+widget.prepend_flavor_text("The End", flavor_text, flavor_css);
+/* That picks the last group's div out of your widget, and prepends the flavor text to be
+ * added before the submit button.
+ * You may pass in css in the form of a class name (as above), or as in a jQuery
+ * css object: {color : "#f00"; border: "solid 1px "#000"}; 
  */
 
 widget.set_ajax('true', 'formHandler.php', function () { 

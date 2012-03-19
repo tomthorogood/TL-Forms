@@ -187,6 +187,15 @@ Form_Widget.prototype.grouping = function( group_id, fields)
     }
 };
 
+
+// prepend_flavor_text and append_flavor_text add arbitrary HTML to a Field_Group object.
+// This is a more OO way of doing this than the previous workaround, which was:
+//  $(widget.groups[widget.groups.length-1].div).prepend(html);
+// 
+// Now it's just:
+//  widget.grouping('Contact Information', ['first_name', 'last_name', 'email_address'];
+//  widget.prepend_flavor_text('Contact Information', html);
+//
 Form_Widget.prototype.prepend_flavor_text = function (group_id, text, css)
 {
     var group = this.groups[this.groupMap[group_id]];
