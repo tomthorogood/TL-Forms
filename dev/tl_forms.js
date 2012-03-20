@@ -57,7 +57,6 @@ function Parse (string)
 //      button  :   a DOM Object
 function allow_progress (group, button)
 {
-    console.debug(group.disable_progress);
     if (!group.disable_progress)
     {
         var progress = false;
@@ -910,7 +909,10 @@ Form_Widget.prototype.grouping = function( group_id, fields)
     // the callback validity test to each element in the group.
     var grp = this.groups[this.group_map[group_id]];
     grp.disable_progress=true;
-    this.groups[this.groups[this.group_map[group_id]-1]].disable_progress = false;
+    if (this.groups.length > 1)
+    {
+        this.groups[this.groups.length-2].disable_progress = false;
+    }
     var button = this.progress.button;
     for (var e = 0; e < grp.elements.length; e++)
     {
@@ -1000,29 +1002,21 @@ Form_Widget.prototype.enable_progress_button = function ()
     {
         this.hide_if_true(this.progress.button, this.has_requirements (this.group));
     }
-    if (! this.group === this.groups.length-1)
-    {
-        $(_self_.progress.button).click(function() {
+    $(_self_.progress.button).click(function() {
 
-            current_group = _self_.groups[_self_.group].div;
-            _self_.group++;
-            next_group = _self_.groups[_self_.group].div;
+        current_group = _self_.groups[_self_.group].div;
+        _self_.group++;
+        next_group = _self_.groups[_self_.group].div;
 
-            $(current_group).hide('slide', {direction : "left"}, 250, function() {
-                $(next_group).show('slide', {direction: "right"}, 250);
-                if (typeof _self_.progress.bar !== "undefined")
-                {
-                    _self_.animate_progress_bar();
-                }
-            });
-            _self_.hide_if_true(_self_.progress.button, _self_.has_requirements (_self_.group) );
+        $(current_group).hide('slide', {direction : "left"}, 250, function() {
+            $(next_group).show('slide', {direction: "right"}, 250);
+            if (typeof _self_.progress.bar !== "undefined")
+            {
+                _self_.animate_progress_bar();
+            }
         });
-    }
-    else
-    {
-        $(this.progress.button).hide();
-    }
-    
+        _self_.hide_if_true(_self_.progress.button, _self_.has_requirements (_self_.group) );
+    });
 }
 
 Form_Widget.prototype.name_swap = function (str)

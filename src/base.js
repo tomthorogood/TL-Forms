@@ -57,7 +57,6 @@ function Parse (string)
 //      button  :   a DOM Object
 function allow_progress (group, button)
 {
-    console.debug(group.disable_progress);
     if (!group.disable_progress)
     {
         var progress = false;
