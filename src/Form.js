@@ -195,6 +195,10 @@ Form.prototype.create_multi_button = function (name, values, style, type)
         {
             $(d).addClass(style);
         }
+        else if (typeof style === "object")
+        {
+            $(d).css(style);
+        }
         var radio = document.createElement('input');
         if (typeof name === "undefined")
         {
