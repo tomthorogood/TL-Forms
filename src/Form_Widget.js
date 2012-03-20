@@ -257,27 +257,34 @@ Form_Widget.prototype.enable_progress_button = function ()
     var requirements = false;
     var f;
     
+
     if (this.group === 0)
     {
         this.hide_if_true(this.progress.button, this.has_requirements (this.group));
     }
-
+    else if (! this.group === this.groups.length-1)
+    {
     
-    $(_self_.progress.button).click(function() {
+        $(_self_.progress.button).click(function() {
 
-        current_group = _self_.groups[_self_.group].div;
-        _self_.group++;
-        next_group = _self_.groups[_self_.group].div;
+            current_group = _self_.groups[_self_.group].div;
+            _self_.group++;
+            next_group = _self_.groups[_self_.group].div;
 
-        $(current_group).hide('slide', {direction : "left"}, 250, function() {
-            $(next_group).show('slide', {direction: "right"}, 250);
-            if (typeof _self_.progress.bar !== "undefined")
-            {
-                _self_.animate_progress_bar();
-            }
+            $(current_group).hide('slide', {direction : "left"}, 250, function() {
+                $(next_group).show('slide', {direction: "right"}, 250);
+                if (typeof _self_.progress.bar !== "undefined")
+                {
+                    _self_.animate_progress_bar();
+                }
+            });
+            _self_.hide_if_true(_self_.progress.button, _self_.has_requirements (_self_.group) );
         });
-        _self_.hide_if_true(_self_.progress.button, _self_.has_requirements (_self_.group) );
-    });
+    }
+    else
+    {
+        $(this.progress.button).hide();
+    }
     
 }
 
