@@ -173,6 +173,8 @@ Form_Widget.prototype.grouping = function( group_id, fields)
     // Now that we have a Field_Group object, we need to bind 
     // the callback validity test to each element in the group.
     var grp = this.groups[this.group_map[group_id]];
+    grp.disable_progress=true;
+    this.groups[this.groups[this.group_map[group_id]-1]].disable_progress = false;
     var button = this.progress.button;
     for (var e = 0; e < grp.elements.length; e++)
     {
@@ -262,9 +264,8 @@ Form_Widget.prototype.enable_progress_button = function ()
     {
         this.hide_if_true(this.progress.button, this.has_requirements (this.group));
     }
-    else if (! this.group === this.groups.length-1)
+    if (! this.group === this.groups.length-1)
     {
-    
         $(_self_.progress.button).click(function() {
 
             current_group = _self_.groups[_self_.group].div;

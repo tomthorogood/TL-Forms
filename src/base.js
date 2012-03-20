@@ -57,84 +57,88 @@ function Parse (string)
 //      button  :   a DOM Object
 function allow_progress (group, button)
 {
-    var progress = false;
-    var cluster_validity = {};
-    var previous_cluster;
-
-    for (var e = 0; e < group.elements.length; e++)
+    console.debug(group.disable_progress);
+    if (!group.disable_progress)
     {
-        element = group.elements[e];
+        var progress = false;
+        var cluster_validity = {};
+        var previous_cluster;
 
-
-        // FIRST:
-        //  Determine whether we need to test this element by
-        //  checking to see if we're on a new cluster.
-        //  If we're on a new cluster, and the previous cluster
-        //  is 'false', then we need not continue, because
-        //  the field set is invalid. 
-        //  
-        //  ====
-        //
-        // If we're on the first element, initialize the previous_cluster variable.
-        if (e === 0)
+        for (var e = 0; e < group.elements.length; e++)
         {
-            previous_cluster = element.name;
-        }
+            var element = group.elements[e];
 
-        // If the current element name is different from the one before it,
-        // we are done with the previous cluster.
-        else if (previous_cluster !== element.name)
-        {
-            // If the previous cluster is false, then not all clusters
-            // can be valid, and there is no reason to continue this test.
-            if (!cluster_validity[previous_cluster])
-            {
-                break;
-            }
 
-            // Otherwise, we have no further need to continue testing
-            // the previous cluster, so we can ignore it in the future.
-            else
+            // FIRST:
+            //  Determine whether we need to test this element by
+            //  checking to see if we're on a new cluster.
+            //  If we're on a new cluster, and the previous cluster
+            //  is 'false', then we need not continue, because
+            //  the field set is invalid. 
+            //  
+            //  ====
+            //
+            // If we're on the first element, initialize the previous_cluster variable.
+            if (e === 0)
             {
                 previous_cluster = element.name;
             }
-        }
 
-        // NEXT:
-        //  If we reach this point, either we're in the first cluster still, OR
-        //  we're on a later cluster, and all previous clusters are valid.
-
-        // If this cluster has not yet been tested...
-        if (typeof cluster_validity[element.name] === "undefined")
-        {
-            cluster_validity[element.name] = element.valid;
-        }
-
-        // If it has already been determined that at least one 
-        // field in this custer is valid, we do not need
-        // to continue testing this field.
-        else if (cluster_validity[element.name] === true)
-        {
-            // If we're on the last loop, all previous tests have passed.
-            // Therefore, we only need to check whether this last loop is true.
-            // That will determine the final result.
-                continue;
-        }
-        else
-        {
-            cluster_validity[element.name] = element.valid;
-        }
-        
-        if (e === group.elements.length-1 && typeof cluster_validity[element.name] !== "undefined")
-        {
-            switch(cluster_validity[element.name])
+            // If the current element name is different from the one before it,
+            // we are done with the previous cluster.
+            else if (previous_cluster !== element.name)
             {
-                case true   :   $(button).show();
-                                break;
-                default     :   $(button).hide();
-                                break;
+                // If the previous cluster is false, then not all clusters
+                // can be valid, and there is no reason to continue this test.
+                if (!cluster_validity[previous_cluster])
+                {
+                    break;
+                }
+
+                // Otherwise, we have no further need to continue testing
+                // the previous cluster, so we can ignore it in the future.
+                else
+                {
+                    previous_cluster = element.name;
+                }
             }
-            break;
+
+            // NEXT:
+            //  If we reach this point, either we're in the first cluster still, OR
+            //  we're on a later cluster, and all previous clusters are valid.
+
+            // If this cluster has not yet been tested...
+            if (typeof cluster_validity[element.name] === "undefined")
+            {
+                cluster_validity[element.name] = element.valid;
+            }
+
+            // If it has already been determined that at least one 
+            // field in this custer is valid, we do not need
+            // to continue testing this field.
+            else if (cluster_validity[element.name] === true)
+            {
+                // If we're on the last loop, all previous tests have passed.
+                // Therefore, we only need to check whether this last loop is true.
+                // That will determine the final result.
+                    continue;
+            }
+            else
+            {
+                cluster_validity[element.name] = element.valid;
+            }
+            
+            if (e === group.elements.length-1 && typeof cluster_validity[element.name] !== "undefined")
+            {
+                switch(cluster_validity[element.name])
+                {
+                    case true   :   $(button).show();
+                                    break;
+                    default     :   $(button).hide();
+                                    break;
+                }
+                break;
+            }
         }
     }
 }
