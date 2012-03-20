@@ -459,7 +459,7 @@ Form_Widget.prototype.field_index = function (field)
 {
     for (var i = 0; i < this.fields.length; i++)
     {
-        if (this.fields[i].name === field)
+        if (this.fields[i].name == field)
         {
             return i;
         }
