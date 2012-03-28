@@ -7,6 +7,7 @@
 function Field_Group (name, array)
 {
     this.elements = array;
+    this.name = name;
     this.inputs = [];
     this.field_names = [];
     this.div = document.createElement('div');

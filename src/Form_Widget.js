@@ -272,9 +272,13 @@ Form_Widget.prototype.enable_progress_button = function ()
         current_group = _self_.groups[_self_.group].div;
         _self_.group++;
         next_group = _self_.groups[_self_.group].div;
-
         $(current_group).hide('slide', {direction : "left"}, 250, function() {
             $(next_group).show('slide', {direction: "right"}, 250);
+            if (typeof track_current_group !== "undefined")
+            {
+                track_current_group = _self_.groups[_self_.group].name;
+            }
+            
             if (typeof _self_.progress.bar !== "undefined")
             {
                 _self_.animate_progress_bar();
