@@ -537,6 +537,7 @@ Element.prototype.live_validation = function (callback)
 function Field_Group (name, array)
 {
     this.elements = array;
+    this.name = name;
     this.inputs = [];
     this.field_names = [];
     this.div = document.createElement('div');
@@ -1007,9 +1008,16 @@ Form_Widget.prototype.enable_progress_button = function ()
         current_group = _self_.groups[_self_.group].div;
         _self_.group++;
         next_group = _self_.groups[_self_.group].div;
-
         $(current_group).hide('slide', {direction : "left"}, 250, function() {
             $(next_group).show('slide', {direction: "right"}, 250);
+            (function() {
+                if (typeof _self_.analytics !== "undefined")
+                {
+                    console.debug(_self_.groups[_self_.group].name);
+                    _self_.analytics.track.group = _self_.groups[_self_.group].name;
+                }
+            })();
+            
             if (typeof _self_.progress.bar !== "undefined")
             {
                 _self_.animate_progress_bar();
@@ -1017,6 +1025,19 @@ Form_Widget.prototype.enable_progress_button = function ()
         });
         _self_.hide_if_true(_self_.progress.button, _self_.has_requirements (_self_.group) );
     });
+}
+
+Form_Widget.prototype.bind_analytics = function()
+{
+    if (typeof this.analytics === "undefined")
+    {
+        this.analytics = {};
+    }
+}
+
+Form_Widget.prototype.track_group  = function (obj)
+{
+    this.analytics.track = obj;
 }
 
 Form_Widget.prototype.name_swap = function (str)

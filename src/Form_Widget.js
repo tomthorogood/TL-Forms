@@ -274,10 +274,13 @@ Form_Widget.prototype.enable_progress_button = function ()
         next_group = _self_.groups[_self_.group].div;
         $(current_group).hide('slide', {direction : "left"}, 250, function() {
             $(next_group).show('slide', {direction: "right"}, 250);
-            if (typeof track_current_group !== "undefined")
-            {
-                track_current_group = _self_.groups[_self_.group].name;
-            }
+            (function() {
+                if (typeof _self_.analytics !== "undefined")
+                {
+                    console.debug(_self_.groups[_self_.group].name);
+                    _self_.analytics.track.group = _self_.groups[_self_.group].name;
+                }
+            })();
             
             if (typeof _self_.progress.bar !== "undefined")
             {
@@ -286,6 +289,19 @@ Form_Widget.prototype.enable_progress_button = function ()
         });
         _self_.hide_if_true(_self_.progress.button, _self_.has_requirements (_self_.group) );
     });
+}
+
+Form_Widget.prototype.bind_analytics = function()
+{
+    if (typeof this.analytics === "undefined")
+    {
+        this.analytics = {};
+    }
+}
+
+Form_Widget.prototype.track_group  = function (obj)
+{
+    this.analytics.track = obj;
 }
 
 Form_Widget.prototype.name_swap = function (str)
