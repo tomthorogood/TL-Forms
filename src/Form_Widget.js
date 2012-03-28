@@ -277,7 +277,6 @@ Form_Widget.prototype.enable_progress_button = function ()
             (function() {
                 if (typeof _self_.analytics !== "undefined")
                 {
-                    console.debug(_self_.groups[_self_.group].name);
                     _self_.analytics.track.group = _self_.groups[_self_.group].name;
                 }
             })();
