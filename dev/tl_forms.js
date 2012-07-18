@@ -131,9 +131,13 @@ function allow_progress (group, button)
             {
                 switch(cluster_validity[element.name])
                 {
-                    case true   :   $(button).show();
+                    case true   :   if (!$(button).is(":visible")){
+                                        $(button).show("slide", {direction:"right"});
+                                    }
                                     break;
-                    default     :   $(button).hide();
+                    default     :   if ($(button).is(":visible")){
+                                        $(button).hide("slide", {direction:"left"});
+                                    }
                                     break;
                 }
                 break;
@@ -490,6 +494,10 @@ function Element(type, /*optional >>*/name, value, css_class, test, required)
                                 break;
         case 'textarea' :       this.model = this.form_creator.create_textarea(name, value, css_class);
                                 this.tag = "textarea";
+    }
+    if (this.required)
+    {
+        $(this.model).addClass("required");
     }
 
     // A local array populated by the DOM elements.

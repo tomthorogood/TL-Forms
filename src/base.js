@@ -131,9 +131,13 @@ function allow_progress (group, button)
             {
                 switch(cluster_validity[element.name])
                 {
-                    case true   :   $(button).show();
+                    case true   :   if (!$(button).is(":visible")){
+                                        $(button).show("slide", {direction:"right"});
+                                    }
                                     break;
-                    default     :   $(button).hide();
+                    default     :   if ($(button).is(":visible")){
+                                        $(button).hide("slide", {direction:"left"});
+                                    }
                                     break;
                 }
                 break;

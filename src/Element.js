@@ -68,6 +68,10 @@ function Element(type, /*optional >>*/name, value, css_class, test, required)
         case 'textarea' :       this.model = this.form_creator.create_textarea(name, value, css_class);
                                 this.tag = "textarea";
     }
+    if (this.required)
+    {
+        $(this.model).addClass("required");
+    }
 
     // A local array populated by the DOM elements.
     var elements = (this.model.getElementsByTagName(this.tag));
